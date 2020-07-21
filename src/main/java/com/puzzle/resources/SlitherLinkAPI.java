@@ -9,7 +9,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.puzzle.core.SLSolve;
 
 @Path("/sl")
@@ -19,16 +21,17 @@ public class SlitherLinkAPI {
 	
 	
 	
-	
+	ObjectWriter oWriter = new ObjectMapper().writerWithDefaultPrettyPrinter();
 	
 	
 	
 	
 	   @Path("/solve")
 	    @GET
-	    public int getNamedGreeting(@QueryParam("puzzledim") int puzzledim,@QueryParam("countvals") String countvals) {
+	    public String getNamedGreeting(@QueryParam("puzzledim") int puzzledim,@QueryParam("countvals") String countvals) {
 		   System.out.println(puzzledim);
 		   System.out.println(countvals);
+		   String pairsString="";
 		   int[][] countArr=new int [puzzledim-1][puzzledim-1];
 		   Scanner s = new Scanner(countvals);
 		   while(s.hasNextInt()) {
@@ -46,13 +49,28 @@ public class SlitherLinkAPI {
 		   
 		   SLSolve sl = new SLSolve(puzzledim,countArr);
 		   if(sl.solve()){
-	            System.out.println("Solution");
-
+			   int[][] pairs=new int[sl.getSolution().length][2];
+			   
+               
 	            for(int i=0;i<sl.getSolution().length;i++){
-	                System.out.println(i+ " -> "+sl.getSolution()[i]+" ");
+	            	pairs[i][0]=i;
+	            	System.out.print(pairs[i][0]+" ");
+	            pairs[i][1]=sl.getSolution()[i];
+	            System.out.print(pairs[i][1]+" ");
+	            System.out.println();
 	            }
+	            
+	            try {
+					pairsString=oWriter.writeValueAsString(pairs);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	        }
-	        return puzzledim;
+		   
+		 
+		   
+	        return pairsString;
 	    }
 
 }

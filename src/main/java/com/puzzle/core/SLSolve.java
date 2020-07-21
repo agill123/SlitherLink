@@ -159,10 +159,14 @@ public class SLSolve {
 	        //sl.findNumSolutions();
 	        //sl.mulSolutions();
 	        if(sl.solve()){
-	            System.out.println("Solution");
-
+	           int[][] pairs=new int[sl.getSolution().length][2];
+                
 	            for(int i=0;i<sl.getSolution().length;i++){
-	                System.out.println(i+ " -> "+sl.getSolution()[i]+" ");
+	            	pairs[i][0]=i;
+	            	System.out.print(pairs[i][0]+" ");
+	            pairs[i][1]=sl.getSolution()[i];
+	            System.out.print(pairs[i][1]+" ");
+	            System.out.println();
 	            }
 	        }
 	       // sl.minimumTour();

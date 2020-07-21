@@ -54,6 +54,13 @@
             <artifactId>dropwizard-views-freemarker</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.choco-solver/choco-solver -->
+<dependency>
+    <groupId>org.choco-solver</groupId>
+    <artifactId>choco-solver</artifactId>
+    <version>4.10.2</version>
+</dependency>
+        
     </dependencies>
 
     <build>

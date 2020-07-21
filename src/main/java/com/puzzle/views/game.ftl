@@ -99,8 +99,12 @@ var POINT_RAD = 5;
 var size;
 var N=0;
 var points=[];
+var pointsRot=[];
 var countsquares=[];
 var countvals=[];
+var solutionArray;
+var flatPoints;
+var ctx;
 
 //Functions
 //function to show dimension div
@@ -142,22 +146,28 @@ function countNumSquare(x1,y1,x2,y2,canvas,val,ctx,i,j){
             var xCoord = e.x-rect.left;
             var yCoord = e.y -rect.top;
            if(xCoord>x1 &&xCoord<x2 &&yCoord>y1 &&yCoord<y2){
-               if(squareVal<4){
+            
                    ctx.clearRect(x1+10,y1+10,40,30);
+               
                    squareVal=squareVal+1;
+                       if(squareVal<4){
                    ctx.fillText(squareVal, ((x1+x2)/2), ((y1+y2)/2)); 
-                   countvals[j][i]=squareVal;
+                    countvals[j][i]=squareVal;}
+                   
+                   
+                   
+                   if(squareVal==4){
+                       squareVal=-1;
+                    ctx.fillText(" ", ((x1+x2)/2), ((y1+y2)/2)); 
+                     countvals[j][i]=squareVal;
+                   }
+                   
+                   
+                  
                    console.log(i);
                    console.log(j);
                    console.log(countvals);
-               }
-               if(squareVal==4){
-                    ctx.clearRect(x1+10,y1+10,40,30);
-                   squareVal=-1;
-                   ctx.fillText(" ", ((x1+x2)/2), ((y1+y2)/2)); 
-                    countvals[i][j]=squareVal;
-                     console.log(countvals);
-               }
+           
                console.log(xCoord+" "+yCoord+" "+val); 
            } 
         });
@@ -177,8 +187,9 @@ function draw(){
     canvas.height = size;
     
     if(canvas.getContext){
-        var ctx = canvas.getContext('2d');
+        ctx = canvas.getContext('2d');
          points=[];
+         pointsRot=[];
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.font = "20px Arial";
         
@@ -194,6 +205,21 @@ function draw(){
         }
         console.log("Points Array");
         console.log(points);
+
+         for(var i =0;i<N;i++){
+           pointsRot.push([]);
+        }
+         for(var i =0;i<N;i++){
+           for(var j = 0;j<N;j++){
+             pointsRot[j].push(points[i][j]);
+           }
+        }
+      
+         console.log("Rot Points");
+        console.log(pointsRot);
+        console.log("Flattened Points Rot");
+            flatPoints = pointsRot.flat();
+          console.log(flatPoints);
         //create the count squares
         for(var i=0;i<(N-1);i++){
             var countRow=[];
@@ -247,6 +273,11 @@ console.log(countArrayString);
 				xhr.onload = function(e) {
  					var responseText = xhr.response; // the text of the response
 					console.log(responseText); // lets produce an alert
+					solutionArray =JSON.parse(responseText);
+					console.log(solutionArray);
+					console.log(typeof solutionArray);
+
+          displaySolution();
 				};
 				
 				// We have done everything we need to prepare the CORS request, so send it
@@ -274,6 +305,20 @@ console.log(countArrayString);
 			    }
 			    return xhr;
 			}
+
+function displaySolution(){
+
+for(var i =0;i<N*N;i++){
+   
+      ctx.beginPath();
+      ctx.lineWidth=5;
+      ctx.moveTo(flatPoints[solutionArray[i][0]].x,flatPoints[solutionArray[i][0]].y);
+      ctx.lineTo(flatPoints[solutionArray[i][1]].x,flatPoints[solutionArray[i][1]].y);
+      ctx.stroke();
+    
+    
+  }
+}
 
 
 
