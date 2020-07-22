@@ -9,6 +9,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.json.simple.JSONObject;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -28,9 +30,7 @@ public class SlitherLinkAPI {
 	
 	   @Path("/solve")
 	    @GET
-	    public String getNamedGreeting(@QueryParam("puzzledim") int puzzledim,@QueryParam("countvals") String countvals) {
-		   System.out.println(puzzledim);
-		   System.out.println(countvals);
+	    public String getNamedGreeting(@QueryParam("puzzledim") int puzzledim,@QueryParam("countvals") String countvals,@QueryParam("stats") boolean stats) {
 		   String pairsString="";
 		   int[][] countArr=new int [puzzledim-1][puzzledim-1];
 		   Scanner s = new Scanner(countvals);
@@ -45,32 +45,51 @@ public class SlitherLinkAPI {
 			   }
 		   
 		   }
+		 
+			
+			   SLSolve sl = new SLSolve(puzzledim,countArr);
+			   if(sl.solve()){
+				   int[][] pairs=new int[sl.getSolution().length][2];
+				   
+	               
+		            for(int i=0;i<sl.getSolution().length;i++){
+		            	pairs[i][0]=i;
+		            	System.out.print(pairs[i][0]+" ");
+		            pairs[i][1]=sl.getSolution()[i];
+		            System.out.print(pairs[i][1]+" ");
+		            System.out.println();
+		            }
+		           
+		            	System.out.println("No stats wanted");
+		            try {
+						pairsString=oWriter.writeValueAsString(pairs);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		            if(stats) {
+		            	SLSolve sl2 = new SLSolve(puzzledim,countArr);
+		 			   System.out.println("Stats ARE wanted");
+		 			   JSONObject data = new JSONObject();
+		 			   data.put("solveTime", sl.solveTime());
+		 			   data.put("numSolutions",sl2.findNumSolutions());
+		 			   data.put("pairs",pairsString);
+		 			   return data.toJSONString();
+		 			   
+		 		   }
+		 		   if(!stats) {
+		 			   return pairsString;
+		 			   
+		 		   }
+		  
+		  
 		   
-		   
-		   SLSolve sl = new SLSolve(puzzledim,countArr);
-		   if(sl.solve()){
-			   int[][] pairs=new int[sl.getSolution().length][2];
-			   
-               
-	            for(int i=0;i<sl.getSolution().length;i++){
-	            	pairs[i][0]=i;
-	            	System.out.print(pairs[i][0]+" ");
-	            pairs[i][1]=sl.getSolution()[i];
-	            System.out.print(pairs[i][1]+" ");
-	            System.out.println();
-	            }
-	            
-	            try {
-					pairsString=oWriter.writeValueAsString(pairs);
-				} catch (JsonProcessingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	        }
+		  
 		   
 		 
 		   
 	        return pairsString;
 	    }
-
+           return "Did not solve";
+}
 }

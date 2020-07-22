@@ -5,14 +5,28 @@
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
        
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
-<style>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet"> 
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Zilla+Slab+Highlight:wght@700&display=swap" rel="stylesheet">
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
  body {
          padding-top: 70px;
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        background-color: #fafafa;
          }
 
 #solve_div{display:none;}
           canvas {
+            display:none;
   background-color: white;
+  -webkit-box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
+-moz-box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
+box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
+ border:5px solid #333B38;
+
 
 }
          .bd-placeholder-img {
@@ -23,33 +37,74 @@
          -ms-user-select: none;
          user-select: none;
          }
+         .navbar-brand{
+          font-family: 'Russo One', sans-serif;
+           
+         }
+         #dim_input{
+    display: block;
+    width: 40%;
+    padding: .375rem .75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    border: 1.5px solid #ced4da;
+    border-radius: 0.1rem;
+
+         }
+   
+         #statsDisplay{
+          margin-top: 20px;
+          display:none;
+         }
+
+         #help_button{
+              color: black;
+    background-color: #fafafa;
+  border:none;
+         }
          @media (min-width: 768px) {
          .bd-placeholder-img-lg {
          font-size: 3.5rem;
          }
          }
+               #showStatsButton{
+             color: black;
+    background-color: fafafa;
+    border-color: black;
+    border-top: 5px solid;
+    border-right: 3px solid;
+    border-left: 3px solid;
+    border-radius: 0;
+    border-bottom: none;
+         
+         
+         
+         
+         
+         }
 </style>     
    </head>
     <body>
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-         <a class="navbar-brand" href="#">SLOnline</a>
+         <a class="navbar-brand" href="#">SlitherLink Online</a>
          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
          <span class="navbar-toggler-icon"></span>
          </button>
          <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
                <li class="nav-item active">
-                  <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                  <a class="nav-link" href="/sl">Home <span class="sr-only">(current)</span></a>
                </li>
                <li class="nav-item">
-                  <a class="nav-link" href="/sl/game">Solve</a>
+                  <a class="nav-link" href="/sl/game">Solve & Design</a>
                </li>
                <li class="nav-item">
-                  <a class="nav-link" href="/sl/game">Design</a>
+                  <a class="nav-link" href="/sl/game">Generate & Play</a>
                </li>
-               <li class="nav-item">
-                  <a class="nav-link" href="/sl/game">Rules & Techniques</a>
-               </li>
+             
             </ul>
          </div>
       </nav>
@@ -69,6 +124,31 @@
                 </div>
                 <div class = "col-sm-12" id="solve_div">
                     <p><a onclick="show_dim()" href="">Enter new dimension</a></p>
+                     <div class="form-check">
+    <input type="checkbox" class="form-check-input" id="genStats">
+    <label class="form-check-label" for="exampleCheck1">Generate puzzle stats  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="help_button">
+ <i class="fa fa-question-circle" aria-hidden="true"></i>
+
+</button></label>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">About Puzzle Stats</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       If you enable puzzle stats, you will be able to see if your puzzle has a unique solution and how long it took to solve
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
                   <p>Enter your puzzle on the grid then click solve <a class="btn btn-secondary" onclick="solve()"; role="button">Solve&raquo;</a></p>
                    
                </div>
@@ -81,6 +161,19 @@
                   </canvas>
                </div>
             </div>
+            <div id="statsDisplay">
+            <button class="btn" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="true" aria-controls="collapseExample" id=showStatsButton>
+   TOGGLE STATS
+  </button>
+  <div class="collapse show" id="collapseExample">
+  <div class="card card-body">
+    <p id="dispNumSol"></p>
+    <p id="dispTimeSol"></p>
+
+  </div>
+</div>
+</div>
+
              
             <hr>
          </div>
@@ -103,9 +196,11 @@ var pointsRot=[];
 var countsquares=[];
 var countvals=[];
 var solutionArray;
+var numSolutions;
+var solveTime;
 var flatPoints;
 var ctx;
-
+var isChecked;
 //Functions
 //function to show dimension div
 function show_dim(){
@@ -151,7 +246,7 @@ function countNumSquare(x1,y1,x2,y2,canvas,val,ctx,i,j){
                
                    squareVal=squareVal+1;
                        if(squareVal<4){
-                   ctx.fillText(squareVal, ((x1+x2)/2), ((y1+y2)/2)); 
+                   ctx.fillText(squareVal, (((x1+x2)/2)-5), ((y1+y2)/2)+5); 
                     countvals[j][i]=squareVal;}
                    
                    
@@ -179,10 +274,11 @@ function draw(){
     //hide the dimension selector
     document.getElementById('dim_div').style.display="none";
       document.getElementById('solve_div').style.display="block";
+         document.getElementById('gameboard').style.display="block";
     //create the canvas
     N=document.getElementById('dim_input').value;
     var canvas = document.getElementById('gameboard');
-    size = 80*N;
+    size = 60*N;
     canvas.width = size;
     canvas.height = size;
     
@@ -191,7 +287,7 @@ function draw(){
          points=[];
          pointsRot=[];
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.font = "20px Arial";
+        ctx.font = "800 20px Arial";
         
         //create the gameboard
         for(var i =0;i<N;i++){
@@ -261,8 +357,17 @@ for(var i = 0; i<N-1;i++){
 }
 console.log(countArrayString); 
 
+        isChecked=document.getElementById("genStats").checked;
+        console.log(isChecked);
+        if(!isChecked){
+  var xhr = createCORSRequest('GET', "http://localhost:8080/sl/solve/?puzzledim="+N+"&countvals="+countArrayString+"&stats="+false);
+        }
 
-				var xhr = createCORSRequest('GET', "http://localhost:8080/sl/solve/?puzzledim="+N+"&countvals="+countArrayString); // Request type and URL
+        if(isChecked){
+            var xhr = createCORSRequest('GET', "http://localhost:8080/sl/solve/?puzzledim="+N+"&countvals="+countArrayString+"&stats="+true);
+
+        }
+			
 				
 				if (!xhr) {
   					alert("CORS not supported");
@@ -271,13 +376,37 @@ console.log(countArrayString);
 				// CORS requests are Asynchronous, i.e. we do not wait for a response, instead we define an action
 				// to do when the response arrives 
 				xhr.onload = function(e) {
- 					var responseText = xhr.response; // the text of the response
-					console.log(responseText); // lets produce an alert
-					solutionArray =JSON.parse(responseText);
-					console.log(solutionArray);
-					console.log(typeof solutionArray);
+ 					var responseText = xhr.response;
+					console.log(responseText); 
+          console.log(typeof responseText);
 
-          displaySolution();
+          console.log("is checked status "+isChecked);
+          if(isChecked){
+            console.log("IS CHECKED!!!!!!!!!!!!!!!");
+            var obj = JSON.parse(responseText); 
+             solutionArray=JSON.parse(obj.pairs);
+             numSolutions=obj.numSolutions;
+             solveTime=obj.solveTime;
+               document.getElementById("statsDisplay").style.display="block";
+               document.getElementById("dispNumSol").innerHTML="Number Solutions: "+numSolutions;
+               document.getElementById("dispTimeSol").innerHTML="Time to Solve: "+solveTime+" s";
+
+                
+             console.log(solutionArray);
+             console.log(numSolutions);
+             console.log(typeof solveTime);
+             console.log(solveTime);
+
+          }
+          if(!isChecked){
+             console.log("--NOT CHECKED--");
+solutionArray =JSON.parse(responseText);
+          console.log(solutionArray);
+          console.log(typeof solutionArray);
+          }
+
+            displaySolution();
+					
 				};
 				
 				// We have done everything we need to prepare the CORS request, so send it
