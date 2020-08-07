@@ -14,23 +14,59 @@ import org.json.simple.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.puzzle.core.SLGen;
 import com.puzzle.core.SLSolve;
 
 @Path("/sl")
 @Produces(MediaType.APPLICATION_JSON) // This resource returns JSON content
 @Consumes(MediaType.APPLICATION_JSON) // This resource can take JSON content as input
 public class SlitherLinkAPI {
-	
-	
-	
+
 	ObjectWriter oWriter = new ObjectMapper().writerWithDefaultPrettyPrinter();
 	
 	
 	
 	
+	@Path("/gen")
+	@GET
+	public String genPuzzle(@QueryParam("puzzledim") int puzzledim) {
+		String pairsString="";
+		String countString="";
+		SLGen slGen = new SLGen(puzzledim);
+		int[][] countArr = slGen.countSolve();
+		SLSolve sl = new SLSolve(puzzledim,countArr);
+		   if(sl.solve()){
+			   int[][] pairs=new int[sl.getSolution().length][2];
+			   
+            
+	            for(int i=0;i<sl.getSolution().length;i++){
+	            	pairs[i][0]=i;
+	            	System.out.print(pairs[i][0]+" ");
+	            pairs[i][1]=sl.getSolution()[i];
+	            System.out.print(pairs[i][1]+" ");
+	            System.out.println();
+	            }
+	           
+	            try {
+					pairsString=oWriter.writeValueAsString(pairs);
+					countString=oWriter.writeValueAsString(countArr);
+					
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+		   
+		   JSONObject data = new JSONObject();
+			   data.put("count", countString);
+			   data.put("pairs",pairsString);
+			   return data.toJSONString();
+		   }
+		   return "Did not generate";
+	
+	}
+	
 	   @Path("/solve")
 	    @GET
-	    public String getNamedGreeting(@QueryParam("puzzledim") int puzzledim,@QueryParam("countvals") String countvals,@QueryParam("stats") boolean stats) {
+	    public String solvePuzzle(@QueryParam("puzzledim") int puzzledim,@QueryParam("countvals") String countvals,@QueryParam("stats") boolean stats) {
 		   String pairsString="";
 		   int[][] countArr=new int [puzzledim-1][puzzledim-1];
 		   Scanner s = new Scanner(countvals);
@@ -81,13 +117,6 @@ public class SlitherLinkAPI {
 		 			   return pairsString;
 		 			   
 		 		   }
-		  
-		  
-		   
-		  
-		   
-		 
-		   
 	        return pairsString;
 	    }
            return "Did not solve";

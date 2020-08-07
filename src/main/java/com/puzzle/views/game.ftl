@@ -3,6 +3,7 @@
    <head>
       <title>SLOnline</title>
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+      <link rel="shortcut icon" href="#" />
        
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
@@ -17,19 +18,45 @@
         font-weight: 500;
         background-color: #fafafa;
          }
-
-#solve_div{display:none;}
-          canvas {
-            display:none;
+#gameboard {
+      display:none;
+         margin-top: 20px;
   background-color: white;
   -webkit-box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
 -moz-box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
 box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
  border:5px solid #333B38;
+   style="z-index: 1;
+   left:0px;
+    top:0px;
 
 
 }
-         .bd-placeholder-img {
+#board-div{
+ position:relative;
+}
+#solutionLayer{
+ position:absolute;
+      position: absolute;
+    left: 20px;
+    top: 5px;
+
+      style="z-index: 2;
+}
+
+
+.form-check{
+  margin-top: 10px;
+     padding-left: 2.1rem;
+}
+
+#wrong-moves-button{
+  font-size: 10px;
+  background-color: transparent;
+  display:none;
+   margin-top: 10px;
+}
+      .bd-placeholder-img {
          font-size: 1.125rem;
          text-anchor: middle;
          -webkit-user-select: none;
@@ -59,6 +86,30 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
           margin-top: 20px;
           display:none;
          }
+#puzzle-div{
+  display:none;
+}
+
+         .diff-button{
+              margin-right: .8rem;
+              border-radius:0;
+              font-size: 20px;
+         }
+         .puzzle-button{
+          
+               margin-right: .8rem;
+               margin-top: .8rem;
+
+              border-radius:0;
+              font-size: 20px;
+         }
+         #puzzle-button-div{
+     
+         }
+
+         #button-div{
+              padding-left: 10px;
+         }
 
          #help_button{
               color: black;
@@ -70,21 +121,7 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
          font-size: 3.5rem;
          }
          }
-               #showStatsButton{
-             color: black;
-    background-color: fafafa;
-    border-color: black;
-    border-top: 5px solid;
-    border-right: 3px solid;
-    border-left: 3px solid;
-    border-radius: 0;
-    border-bottom: none;
-         
-         
-         
-         
-         
-         }
+  
 </style>     
    </head>
     <body>
@@ -96,13 +133,13 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
          <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
                <li class="nav-item active">
-                  <a class="nav-link" href="/sl">Home <span class="sr-only">(current)</span></a>
+                  <a class="nav-link" href="/sl">Home <span class="sr-only"></span></a>
                </li>
                <li class="nav-item">
-                  <a class="nav-link" href="/sl/game">Solve & Design</a>
+                  <a class="nav-link" href="/sl/solve">Solve & Design</a>
                </li>
                <li class="nav-item">
-                  <a class="nav-link" href="/sl/game">Generate & Play</a>
+                  <a class="nav-link" href="/sl/game">Play</a>
                </li>
              
             </ul>
@@ -110,104 +147,68 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
       </nav>
         
       <main role="main">
-         <div class="container">
-            <div class ="row">
-                <div  id=dim_div>
-               <div class = "col-sm-12">
-                  <p>Enter a puzzle dimension <a class="btn btn-secondary" onclick="draw()"; role="button">Go&raquo;</a></p>
-                   
+       <div class="container">
+        <div class="row">
+           <div class = "col-sm-12">
+                  <p>Enter a puzzle dimension from 5 to 10 and choose a puzzle difficulty</p>
                    
                </div>
-                <div class="col-xs-2s">
+               <div class="col-xs-2s">
                   <input type="text" class="form-control mb-2 mx-2 " id="dim_input">
                </div>
-                </div>
-                <div class = "col-sm-12" id="solve_div">
-                    <p><a onclick="show_dim()" href="">Enter new dimension</a></p>
-                     <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="genStats">
-    <label class="form-check-label" for="exampleCheck1">Generate puzzle stats  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="help_button">
- <i class="fa fa-question-circle" aria-hidden="true"></i>
-
-</button></label>
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">About Puzzle Stats</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-       If you enable puzzle stats, you will be able to see if your puzzle has a unique solution and how long it took to solve
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-  </div>
-                  <p>Enter your puzzle on the grid then click solve <a class="btn btn-secondary" onclick="solve()"; role="button">Solve&raquo;</a></p>
-                   
+               <div class = "col-sm-12"id="button-div">
+                <a class="btn btn-secondary diff-button" onclick="loadPuzzle()"; role="button">Generate Puzzle</a>
+            
                </div>
-               
-            </div>
-            <div class="row">
-               <div class ="col-sm-12 ">
+             </div>
+             <div class = "row" id="puzzle-div">
+              <div class = "col-sm-12"id="button-div">
+                <a class="btn btn-secondary diff-button " id="wrong-moves-button" onclick="loadPuzzle()"; role="button">Hide Wrong Moves</a>
+            
+               </div>
+               <div class ="col-sm-12 " id="board-div">
                   <canvas id="gameboard">
                      <p>Canvas not supported on your browser</p>
                   </canvas>
+                   <canvas id="solutionLayer">
+                     <p>Canvas not supported on your browser</p>
+                  </canvas>
+
                </div>
-            </div>
-            <div id="statsDisplay">
-            <button class="btn" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="true" aria-controls="collapseExample" id=showStatsButton>
-   TOGGLE STATS
-  </button>
-  <div class="collapse show" id="collapseExample">
-  <div class="card card-body">
-    <p id="dispNumSol"></p>
-    <p id="dispTimeSol"></p>
+                <div class = "col-sm-12"id="puzzle-button-div">
+                <a class="btn btn-secondary puzzle-button" onclick="showCorrect()"; role="button">Check Solution</a>
+             <a class="btn btn-secondary puzzle-button" onclick="showAnswer()"; role="button">Show Answer</a>
+               </div>
 
-  </div>
-</div>
-</div>
-
-             
+             </div>
             <hr>
+
          </div>
       </main>
      <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 <script>
-//Constants
+//constants
 var SPACE = 50;
 var PAD = 50;
 var POINT_RAD = 5;
-
-
-//Attributes
-var size;
-var N=0;
-var points=[];
-var pointsRot=[];
-var countsquares=[];
-var countvals=[];
-var solutionArray;
-var numSolutions;
-var solveTime;
+//global variables
+var N;   //board size dimension
+var size;  //canvas size
+var points = [];  //points array
+var pointsRot = [];
 var flatPoints;
+var edges=[] //edges array
+var countsquares=[]; //square num array
+var activeEdges=[];
+var solutionEdges=[];
+var countArr;
+var solutionArr;
+var canvas;
 var ctx;
-var isChecked;
-//Functions
-//function to show dimension div
-function show_dim(){
-   document.getElementById('dim_div').style.display="block";
-      document.getElementById('solve_div').style.display="none";
-}
-//function draw and hold point data
+var correctLayer;
+var ctxCL;
 function point(x,y,rad,sa,ea,clock,ctx){
     this.x=x;
     this.y=y;
@@ -223,69 +224,259 @@ function point(x,y,rad,sa,ea,clock,ctx){
     }
     
 }
-//function to define a square between points on the board
-function countNumSquare(x1,y1,x2,y2,canvas,val,ctx,i,j){
+
+
+
+ 
+
+function edge(x1,y1,x2,y2,inSolution,canvas,ctx,vert,point1,point2){
+  this.x1=x1;
+  this.y1=y1;
+  this.x2=x2;
+  this.y2=y2;
+  this.inSolution=inSolution;
+  this.canvas=canvas;
+  this.ctx=ctx;
+  this.vert=vert;
+  this.point1=point1;
+  this.point2=point2;
+  let active=false;
+
+          window.addEventListener('click',function(e){
+            var rect=canvas.getBoundingClientRect();
+            var xCoord = e.x-rect.left;
+            var yCoord = e.y -rect.top;
+        
+                     if (vert==true){
+                        if(yCoord>y1+POINT_RAD &&yCoord<y2-POINT_RAD&&Math.abs(xCoord-x1)<10){
+                          active=!active;
+                          if(active==true){
+                     
+
+                           console.log("active edges");
+                          console.log(activeEdges);
+                          activeEdges.push([point1,point2,x1,y1,x2,y2]);
+                                ctx.beginPath();
+                                  ctx.lineWidth=5;
+                                  ctx.moveTo(x1,y1);
+                                  ctx.lineTo(x2,y2);
+                                  ctx.stroke();
+                      
+                        
+                                 
+                                
+                          }
+                             if(active==false){
+                           
+                               activeEdges.pop([point1,point2,x1,y1,x2,y2]);
+
+                                  console.log("active edges");
+                          console.log(activeEdges);
+
+                              ctx.clearRect(x1-POINT_RAD,y1+POINT_RAD,8,40);
+                           
+                                
+ 
+                        }
+                     }
+                   }
+                      if(vert==false){
+
+                       if(xCoord>x1+POINT_RAD &&xCoord<x2-POINT_RAD &&Math.abs(yCoord-y1)<10){
+                         active=!active;
+                                  if(active==true){ 
+
+            
+                  
+                           console.log("active edges");
+                          console.log(activeEdges);
+                          activeEdges.push([point1,point2,x1,y1,x2,y2]);
+                                ctx.beginPath();
+                                  ctx.lineWidth=5;
+                                  ctx.moveTo(x1,y1);
+                                  ctx.lineTo(x2,y2);
+                                  ctx.stroke();
+                 
+                                
+                                       }
+
+
+                                       if(active==false){
+
+                                           activeEdges.pop([point1,point2,x1,y1,x2,y2]);
+                                           console.log("active edges");
+                          console.log(activeEdges);
+                                        ctx.clearRect(x1+POINT_RAD,y1-POINT_RAD,40,8);
+                      }
+                                   
+
+                        }
+                       }
+  
+    
+                   
+           
+        });
+
+
+}
+//make sure to input correct logic after show answer
+function showAnswer(){
+ //activeEdges=[]
+ ctxCL.clearRect(0,0,size,size);
+  for(var i=0;i<edges.length;i++){
+    if(edges[i].vert==true){
+           ctx.clearRect(edges[i].x1-POINT_RAD,edges[i].y1+POINT_RAD,8,40);
+
+    }
+    if(edges[i].vert==false){
+      ctx.clearRect(edges[i].x1+POINT_RAD,edges[i].y1-POINT_RAD,40,8);
+    }
+  }
+
+    for(var i =0;i<N*N;i++){
+
+      ctx.beginPath();
+      ctx.lineWidth=5;
+      ctx.moveTo(flatPoints[solutionArr[i][0]].x,flatPoints[solutionArr[i][0]].y);
+      ctx.lineTo(flatPoints[solutionArr[i][1]].x,flatPoints[solutionArr[i][1]].y);
+      ctx.stroke();
+    
+    
+  }
+
+}
+
+function showCorrect(){
+console.log("function has begun");
+
+  var wrongMove=false;
+  var correct=false;
+    correctLayer.width = size;
+    correctLayer.height = size;
+
+  //for all input edges check if correct.
+var match=0;
+var numEdges=0;
+for(var i =0;i<solutionArr.length;i++){
+  if(solutionArr[i][0]!=solutionArr[i][1]){
+    numEdges++;
+  }
+}
+
+    console.log(numEdges);
+  for(var i=0;i<activeEdges.length;i++){
+    console.log(activeEdges[i]);
+
+    console.log(checkCorrect(activeEdges[i][0],activeEdges[i][1]));
+    if(!checkCorrect(activeEdges[i][0],activeEdges[i][1])){
+          wrongMove=true;
+        ctxCL.beginPath();
+        ctxCL.lineWidth=5;
+        ctxCL.moveTo(activeEdges[i][2],activeEdges[i][3]);
+        ctxCL.lineTo(activeEdges[i][4],activeEdges[i][5]);
+        ctxCL.strokeStyle="red";
+        ctxCL.stroke();
+
+    }
+      //if correct highlight all in green 
+   
+        if(checkCorrect(activeEdges[i][0],activeEdges[i][1])){
+          match++;
+          console.log("The number of matches is "+match);
+        }
+
+
+  }
+
+  if(match==numEdges){
+
+  console.log("The correct answer has been input");
+   for(var i=0;i<activeEdges.length;i++){
+ 
+        ctxCL.beginPath();
+        ctxCL.lineWidth=5;
+        ctxCL.moveTo(activeEdges[i][2],activeEdges[i][3]);
+        ctxCL.lineTo(activeEdges[i][4],activeEdges[i][5]);
+        ctxCL.strokeStyle="green";
+        ctxCL.stroke();
+
+    }
+
+
+  }
+  
+ 
+      console.log("drawing correct layer");
+      if(wrongMove){
+        document.getElementById('wrong-moves-button').style.display="inline-block";
+                document.getElementById('wrong-moves-button').onclick=function erase(){
+                  console.log("erase");
+                  ctxCL.clearRect(0,0,size,size);
+
+
+                }
+
+      }
+
+  
+  //if incorrect highlight in red
+  //when the user clicks on the screen again hide the layer
+  
+
+  //if correct highlight all in green 
+
+  //do end game logic
+}
+
+function checkCorrect(a,b){
+  let correct=false;
+  for(var i =0;i<solutionArr.length;i++){
+
+
+      if((solutionArr[i][0]==a &&solutionArr[i][1]==b) ||(solutionArr[i][0]==b &&solutionArr[i][1]==a) ){
+        correct= true;
+      }
+   
+  }
+     return correct ;
+}
+
+function countNumSquare(x1,y1,x2,y2,val,ctx,squareVal){
     this.x1=x1;
     this.x2=x2;
     this.y1=y1;
     this.y2=y2;
     this.val=val;
     this.ctx=ctx;
-    let squareVal=-1;
-    this.i=i;
-    this.j=j;
+    this.squareVal = squareVal;   
+    if(squareVal!=-1){
+ ctx.fillText(squareVal, (((x1+x2)/2)-5), ((y1+y2)/2)+5);  
+    }
    
-        //add an event listener to listen in defined space 
-        window.addEventListener('click',function(e){
-            var rect=canvas.getBoundingClientRect();
-            var xCoord = e.x-rect.left;
-            var yCoord = e.y -rect.top;
-           if(xCoord>x1 &&xCoord<x2 &&yCoord>y1 &&yCoord<y2){
-            
-                   ctx.clearRect(x1+10,y1+10,40,30);
-               
-                   squareVal=squareVal+1;
-                       if(squareVal<4){
-                   ctx.fillText(squareVal, (((x1+x2)/2)-5), ((y1+y2)/2)+5); 
-                    countvals[j][i]=squareVal;}
-                   
-                   
-                   
-                   if(squareVal==4){
-                       squareVal=-1;
-                    ctx.fillText(" ", ((x1+x2)/2), ((y1+y2)/2)); 
-                     countvals[j][i]=squareVal;
-                   }
-                   
-                   
-                  
-                   console.log(i);
-                   console.log(j);
-                   console.log(countvals);
-           
-               console.log(xCoord+" "+yCoord+" "+val); 
-           } 
-        });
+  if(squareVal==-1){
+ ctx.fillText(" ", (((x1+x2)/2)-5), ((y1+y2)/2)+5);  
+    }      
+        };
 
-    
-}
-//function to draw the board
+
 function draw(){
-    //hide the dimension selector
-    document.getElementById('dim_div').style.display="none";
-      document.getElementById('solve_div').style.display="block";
-         document.getElementById('gameboard').style.display="block";
-    //create the canvas
-    N=document.getElementById('dim_input').value;
-    var canvas = document.getElementById('gameboard');
-    size = 60*N;
+
+   canvas = document.getElementById('gameboard');
+  document.getElementById('gameboard').style.display="block";
+    document.getElementById('puzzle-div').style.display="block";
+     correctLayer = document.getElementById('solutionLayer');
+   ctxCL=correctLayer.getContext('2d');
+   size = 60*N;
     canvas.width = size;
     canvas.height = size;
     
     if(canvas.getContext){
         ctx = canvas.getContext('2d');
-         points=[];
+       points=[];
          pointsRot=[];
+         edges=[];
+         activeEdges=[];
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.font = "800 20px Arial";
         
@@ -316,138 +507,104 @@ function draw(){
         console.log("Flattened Points Rot");
             flatPoints = pointsRot.flat();
           console.log(flatPoints);
-        //create the count squares
+
+         //create the count squares
         for(var i=0;i<(N-1);i++){
             var countRow=[];
-            var valRow=[];
             for(var j=0;j<(N-1);j++){   
                 var squarestring="square "+i+j;
-            var curSquare=new countNumSquare(points[i][j].x,points[i][j].y,points[i+1][j].x,points[i][j+1].y,canvas,squarestring,ctx,i,j);
-                
+            var curSquare=new countNumSquare(points[i][j].x,points[i][j].y,points[i+1][j].x,points[i][j+1].y,squarestring,ctx,countArr[j][i]);
+                  countRow.push(curSquare);
             console.log(curSquare);
-                countRow.push(curSquare);
-                valRow.push(-1);
                   }
             countsquares.push(countRow);
-            countvals.push(valRow);
+         
         }
      
         console.log(countsquares);
-        console.log(countvals);
-        
-        
-        
-    }
-    
-    
-    
-}
 
-//Function to solve
-function solve(){
 
-var countArrayString="";
-for(var i = 0; i<N-1;i++){
- for(var j = 0;j<N-1;j++){
- countArrayString+= countvals[i][j]+" ";
- console.log(countvals[i][j]);
- 
- }
+     for(var i =0;i<N*N;i++){
+       var curEdge;
+      if(i+1<flatPoints.length &&( (i+1)%(N)!=0))
+      {
+       curEdge = new edge(flatPoints[i].x,flatPoints[i].y,flatPoints[i+1].x,flatPoints[i+1].y,false,canvas,ctx,false,i,i+1);
+        edges.push(curEdge);
 
-}
-console.log(countArrayString); 
-
-        isChecked=document.getElementById("genStats").checked;
-        console.log(isChecked);
-        if(!isChecked){
-  var xhr = createCORSRequest('GET', "http://localhost:8080/sl/solve/?puzzledim="+N+"&countvals="+countArrayString+"&stats="+false);
-        }
-
-        if(isChecked){
-            var xhr = createCORSRequest('GET', "http://localhost:8080/sl/solve/?puzzledim="+N+"&countvals="+countArrayString+"&stats="+true);
-
-        }
-			
-				
-				if (!xhr) {
-  					alert("CORS not supported");
-				}
-
-				// CORS requests are Asynchronous, i.e. we do not wait for a response, instead we define an action
-				// to do when the response arrives 
-				xhr.onload = function(e) {
- 					var responseText = xhr.response;
-					console.log(responseText); 
-          console.log(typeof responseText);
-
-          console.log("is checked status "+isChecked);
-          if(isChecked){
-            console.log("IS CHECKED!!!!!!!!!!!!!!!");
-            var obj = JSON.parse(responseText); 
-             solutionArray=JSON.parse(obj.pairs);
-             numSolutions=obj.numSolutions;
-             solveTime=obj.solveTime;
-               document.getElementById("statsDisplay").style.display="block";
-               document.getElementById("dispNumSol").innerHTML="Number Solutions: "+numSolutions;
-               document.getElementById("dispTimeSol").innerHTML="Time to Solve: "+solveTime+" s";
-
-                
-             console.log(solutionArray);
-             console.log(numSolutions);
-             console.log(typeof solveTime);
-             console.log(solveTime);
-
-          }
-          if(!isChecked){
-             console.log("--NOT CHECKED--");
-solutionArray =JSON.parse(responseText);
-          console.log(solutionArray);
-          console.log(typeof solutionArray);
-          }
-
-            displaySolution();
-					
-				};
-				
-				// We have done everything we need to prepare the CORS request, so send it
-				xhr.send();
-}
-		function createCORSRequest(method, url) {
-			    var xhr = new XMLHttpRequest();
-			    if ("withCredentials" in xhr) {
-
-			        // Check if the XMLHttpRequest object has a "withCredentials" property.
-			        // "withCredentials" only exists on XMLHTTPRequest2 objects.
-			        xhr.open(method, url, true);
-
-			    } else if (typeof XDomainRequest != "undefined") {
-
-			        // Otherwise, check if XDomainRequest.
-			        // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-			        xhr = new XDomainRequest();
-			        xhr.open(method, url);
-			    } else {
-
-			        // Otherwise, CORS is not supported by the browser.
-			        xhr = null;
-
-			    }
-			    return xhr;
-			}
-
-function displaySolution(){
-
-for(var i =0;i<N*N;i++){
-   
-      ctx.beginPath();
-      ctx.lineWidth=5;
-      ctx.moveTo(flatPoints[solutionArray[i][0]].x,flatPoints[solutionArray[i][0]].y);
-      ctx.lineTo(flatPoints[solutionArray[i][1]].x,flatPoints[solutionArray[i][1]].y);
-      ctx.stroke();
-    
+      }
+       if(i+N<flatPoints.length){
+        curEdge = new edge(flatPoints[i].x,flatPoints[i].y,flatPoints[i+N].x,flatPoints[i+N].y,false,canvas,ctx,true,i,i+N);
+               edges.push(curEdge);
+      }
+  
     
   }
+
+
+  console.log("Edges");
+  console.log(edges);
+
+
+
+      
+      }
+ 
+};
+
+
+
+
+
+function loadPuzzle(){
+N=parseInt(document.getElementById("dim_input").value);
+console.log("The size dimension is "+N);
+ var xhr = createCORSRequest('GET', "http://localhost:8080/sl/gen/?puzzledim="+N);
+  if (!xhr) {
+            alert("CORS not supported");
+        }
+    xhr.onload = function(e) {
+          var responseText = xhr.response;
+          console.log(responseText); 
+          console.log(typeof responseText);
+           var obj = JSON.parse(responseText); 
+           console.log(obj);
+           countArr = JSON.parse(obj.count);
+               console.log("CountArr is " + typeof countArr);
+           solutionArr = JSON.parse(obj.pairs);
+               console.log("SolutionArr is  " + typeof solutionArr);
+
+             draw();  
+
+           
+        }
+          xhr.send();
+
+
 }
+
+
+    function createCORSRequest(method, url) {
+          var xhr = new XMLHttpRequest();
+          if ("withCredentials" in xhr) {
+
+              // Check if the XMLHttpRequest object has a "withCredentials" property.
+              // "withCredentials" only exists on XMLHTTPRequest2 objects.
+              xhr.open(method, url, true);
+
+          } else if (typeof XDomainRequest != "undefined") {
+
+              // Otherwise, check if XDomainRequest.
+              // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+              xhr = new XDomainRequest();
+              xhr.open(method, url);
+          } else {
+
+              // Otherwise, CORS is not supported by the browser.
+              xhr = null;
+
+          }
+          return xhr;
+      }
 
 
 

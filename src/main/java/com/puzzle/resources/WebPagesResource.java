@@ -9,6 +9,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.puzzle.views.SolveScreenView;
 import com.puzzle.views.GameScreenView;
 import com.puzzle.views.HomeScreenView;
 
@@ -24,6 +25,13 @@ public class WebPagesResource {
 	
 	public HomeScreenView getHomeScreen() {
 		return new HomeScreenView();
+	}
+	
+	@GET
+	@Path("/solve")
+
+	public SolveScreenView getSolveScreen() {
+		return new SolveScreenView();
 	}
 	
 	@GET

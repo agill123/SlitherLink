@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
   <head>
+        <link rel="shortcut icon" href="#" />
+  
    
     <title>SLOnline</title>
 
@@ -16,10 +18,13 @@
         -ms-user-select: none;
         user-select: none;
       }
-      canvas {
-  background-color: #111;
-  border-radius: 5px;
-}
+ body {
+         
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        background-color: #fafafa;
+         }
 
       @media (min-width: 768px) {
         .bd-placeholder-img-lg {
@@ -42,10 +47,10 @@
         <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/sl/game">Solve</a>
+        <a class="nav-link" href="/sl/solve">Solve</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/sl/game">Design</a>
+        <a class="nav-link" href="/sl/game">Play</a>
       </li>
       
     </ul>
@@ -68,12 +73,12 @@
       <div class="col-md-4">
         <h2>Solver</h2>
         <p>Solve a SlitherLink Puzzle</p>
-        <p><a class="btn btn-secondary" href="/sl/game" role="button">Go&raquo;</a></p>
+        <p><a class="btn btn-secondary" href="/sl/solve" role="button">Go&raquo;</a></p>
       </div>
       <div class="col-md-4">
-        <h2>Design Tool</h2>
-        <p>Create and analyze your puzzle</p>
-        <p><a class="btn btn-secondary" href="#" role="button">Go &raquo;</a></p>
+        <h2>Play Slitherlink</h2>
+        <p>Generate and Play a Game</p>
+        <p><a class="btn btn-secondary" href="/sl/game" role="button">Go &raquo;</a></p>
       </div>
     
     </div>
