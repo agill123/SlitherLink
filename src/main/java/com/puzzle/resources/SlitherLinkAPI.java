@@ -24,16 +24,19 @@ public class SlitherLinkAPI {
 
 	ObjectWriter oWriter = new ObjectMapper().writerWithDefaultPrettyPrinter();
 	
-	
-	
-	
+
 	@Path("/gen")
 	@GET
-	public String genPuzzle(@QueryParam("puzzledim") int puzzledim) {
+	public String genPuzzle(@QueryParam("puzzledim") int puzzledim,@QueryParam("diff") String diff) {
+	
 		String pairsString="";
 		String countString="";
-		SLGen slGen = new SLGen(puzzledim);
+		SLGen slGen = new SLGen(puzzledim,diff);
 		int[][] countArr = slGen.countSolve();
+		long genSeed =slGen.getSeed();
+		String genDiff = slGen.getDiff();
+	
+		String displaySeed = puzzledim+"-"+genDiff.charAt(0)+"-"+genSeed;
 		SLSolve sl = new SLSolve(puzzledim,countArr);
 		   if(sl.solve()){
 			   int[][] pairs=new int[sl.getSolution().length][2];
@@ -58,12 +61,66 @@ public class SlitherLinkAPI {
 		   JSONObject data = new JSONObject();
 			   data.put("count", countString);
 			   data.put("pairs",pairsString);
+			   data.put("seed",displaySeed);
 			   return data.toJSONString();
 		   }
 		   return "Did not generate";
 	
 	}
 	
+	
+	  @Path("/load")
+	  @GET 
+	  public String loadSeedPuzzle(@QueryParam("inputPuzzleDim") int puzzledim,@QueryParam("inputDiff") String diff,@QueryParam("seed") String seed) {
+			String pairsString="";
+			String countString="";
+			String difficulty="";
+			if(diff.equals("e")) {
+				difficulty="easy";
+			}
+			if(diff.equals("m")) {
+				difficulty="medium";
+			}
+			if(diff.equals("d")) {
+				difficulty="difficult";
+			}
+			System.out.println("diff is"+diff);
+			System.out.println("difficulty is"+difficulty);
+		    long inputSeed = Long.parseLong(seed);
+			SLGen slGen = new SLGen(puzzledim,difficulty,inputSeed);
+			int[][] countArr = slGen.countSolve();
+			long genSeed =slGen.getSeed();
+		
+			String displaySeed = puzzledim+"-"+diff+"-"+genSeed;
+			SLSolve sl = new SLSolve(puzzledim,countArr);
+			   if(sl.solve()){
+				   int[][] pairs=new int[sl.getSolution().length][2];
+				   
+	            
+		            for(int i=0;i<sl.getSolution().length;i++){
+		            	pairs[i][0]=i;
+		            	System.out.print(pairs[i][0]+" ");
+		            pairs[i][1]=sl.getSolution()[i];
+		            System.out.print(pairs[i][1]+" ");
+		            System.out.println();
+		            }
+		           
+		            try {
+						pairsString=oWriter.writeValueAsString(pairs);
+						countString=oWriter.writeValueAsString(countArr);
+						
+					} catch (JsonProcessingException e) {
+						e.printStackTrace();
+					}
+			   
+			   JSONObject data = new JSONObject();
+				   data.put("count", countString);
+				   data.put("pairs",pairsString);
+				   data.put("seed",displaySeed);
+				   return data.toJSONString();
+			   }
+			   return "Did not generate";
+	  }
 	   @Path("/solve")
 	    @GET
 	    public String solvePuzzle(@QueryParam("puzzledim") int puzzledim,@QueryParam("countvals") String countvals,@QueryParam("stats") boolean stats) {

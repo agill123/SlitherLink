@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,800;1,800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet"> 
+
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Zilla+Slab+Highlight:wght@700&display=swap" rel="stylesheet">
 <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
@@ -16,6 +17,11 @@
         font-size: 16px;
         font-weight: 500;
         background-color: #fafafa;
+         }
+
+
+         #new-options-div{
+          display:none;
          }
 
 #solve_div{display:none;}
@@ -38,7 +44,8 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
          user-select: none;
          }
          .navbar-brand{
-          font-family: 'Russo One', sans-serif;
+          font-family: 'Roboto', sans-serif;
+          font-size:20px;
            
          }
          #dim_input{
@@ -154,6 +161,14 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
                </div>
                
             </div>
+            <div class = "row" id="new-options-div">
+               <div class = "col-sm-12">
+            <p><a onclick="reDraw()";>Edit current puzzle</a></p>
+          </div>
+            <div class = "col-sm-12">
+             <p><a onclick="show_dim()"; href="">Enter new puzzle</a></p>
+              </div>
+            </div>
             <div class="row">
                <div class ="col-sm-12 ">
                   <canvas id="gameboard">
@@ -190,110 +205,187 @@ var POINT_RAD = 5;
 
 //Attributes
 var size;
-var N=0;
-var points=[];
-var pointsRot=[];
-var countsquares=[];
-var countvals=[];
+var N = 0;
+var points = [];
+var pointsRot = [];
+var listeners = [];
+var countsquares = [];
+var countvals = [];
 var solutionArray;
 var numSolutions;
 var solveTime;
 var flatPoints;
 var ctx;
 var isChecked;
+var canvas;
 //Functions
 //function to show dimension div
-function show_dim(){
-   document.getElementById('dim_div').style.display="block";
-      document.getElementById('solve_div').style.display="none";
+function show_dim() {
+    document.getElementById('dim_div').style.display = "block";
+    document.getElementById('solve_div').style.display = "none";
 }
 //function draw and hold point data
-function point(x,y,rad,sa,ea,clock,ctx){
-    this.x=x;
-    this.y=y;
-    this.rad=rad;
-    this.sa=sa;
-    this.ea=ea;
-    this.ctx=ctx;
-    this.draw=function(){
+function point(x, y, rad, sa, ea, clock, ctx) {
+    this.x = x;
+    this.y = y;
+    this.rad = rad;
+    this.sa = sa;
+    this.ea = ea;
+    this.ctx = ctx;
+    this.draw = function() {
         ctx.beginPath();
-        ctx.arc(this.x,this.y,this.rad,this.sa,this.ea,this.clock);
+        ctx.arc(this.x, this.y, this.rad, this.sa, this.ea, this.clock);
         ctx.closePath();
         ctx.fill();
     }
-    
+
 }
 //function to define a square between points on the board
-function countNumSquare(x1,y1,x2,y2,canvas,val,ctx,i,j){
-    this.x1=x1;
-    this.x2=x2;
-    this.y1=y1;
-    this.y2=y2;
-    this.val=val;
-    this.ctx=ctx;
-    let squareVal=-1;
-    this.i=i;
-    this.j=j;
-   
-        //add an event listener to listen in defined space 
-        window.addEventListener('click',function(e){
-            var rect=canvas.getBoundingClientRect();
-            var xCoord = e.x-rect.left;
-            var yCoord = e.y -rect.top;
-           if(xCoord>x1 &&xCoord<x2 &&yCoord>y1 &&yCoord<y2){
-            
-                   ctx.clearRect(x1+10,y1+10,40,30);
-               
-                   squareVal=squareVal+1;
-                       if(squareVal<4){
-                   ctx.fillText(squareVal, (((x1+x2)/2)-5), ((y1+y2)/2)+5); 
-                    countvals[j][i]=squareVal;}
-                   
-                   
-                   
-                   if(squareVal==4){
-                       squareVal=-1;
-                    ctx.fillText(" ", ((x1+x2)/2), ((y1+y2)/2)); 
-                     countvals[j][i]=squareVal;
-                   }
-                   
-                   
-                  
-                   console.log(i);
-                   console.log(j);
-                   console.log(countvals);
-           
-               console.log(xCoord+" "+yCoord+" "+val); 
-           } 
-        });
+function countNumSquare(x1, y1, x2, y2, canvas, val, ctx, i, j, active) {
+    this.x1 = x1;
+    this.x2 = x2;
+    this.y1 = y1;
+    this.y2 = y2;
+    this.val = val;
+    this.ctx = ctx;
+    let squareVal = -1;
+    this.i = i;
+    this.j = j;
+    this.active = active;
 
-    
+    //add an event listener to listen in defined space 
+    let listFunc = function(e) {
+        var rect = canvas.getBoundingClientRect();
+        var xCoord = e.x - rect.left;
+        var yCoord = e.y - rect.top;
+        if (active) {
+            if (xCoord > x1 && xCoord < x2 && yCoord > y1 && yCoord < y2) {
+
+                ctx.clearRect(x1 + 10, y1 + 10, 40, 30);
+
+                squareVal = squareVal + 1;
+                if (squareVal < 4) {
+                    ctx.fillText(squareVal, (((x1 + x2) / 2) - 5), ((y1 + y2) / 2) + 5);
+                    countvals[j][i] = squareVal;
+                }
+
+
+
+                if (squareVal == 4) {
+                    squareVal = -1;
+                    ctx.fillText(" ", ((x1 + x2) / 2), ((y1 + y2) / 2));
+                    countvals[j][i] = squareVal;
+                }
+
+
+
+                console.log(i);
+                console.log(j);
+                console.log(countvals);
+
+                console.log(xCoord + " " + yCoord + " " + val);
+            }
+        }
+    };
+    listeners.push(listFunc);
+
+    window.addEventListener('click', listFunc);
+
+
+
 }
 //function to draw the board
-function draw(){
+
+function reDraw() {
+    document.getElementById('solve_div').style.display = "block";
+     document.getElementById('new-options-div').style.display = "none";
+
+    points = [];
+    pointsRot = [];
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "800 20px Arial";
+
+    //create the gameboard
+    for (var i = 0; i < N; i++) {
+        var boardRow = [];
+        for (var j = 0; j < N; j++) {
+            var curPoint = new point((i * SPACE) + PAD, (j * SPACE) + PAD, 5, 0, Math.PI * 2, false, ctx)
+            boardRow.push(curPoint);
+            curPoint.draw();
+        }
+        points.push(boardRow);
+    }
+    console.log("Points Array");
+    console.log(points);
+
+    for (var i = 0; i < N; i++) {
+        pointsRot.push([]);
+    }
+    for (var i = 0; i < N; i++) {
+        for (var j = 0; j < N; j++) {
+            pointsRot[j].push(points[i][j]);
+        }
+    }
+
+    console.log("Rot Points");
+    console.log(pointsRot);
+    console.log("Flattened Points Rot");
+    flatPoints = pointsRot.flat();
+    console.log(flatPoints);
+    //create the count squares
+    for (var i = 0; i < (N - 1); i++) {
+
+        for (var j = 0; j < (N - 1); j++) {
+            if (countvals[j][i] == -1) {
+                ctx.fillText(" ", (((countsquares[i][j].x1 + countsquares[i][j].x2) / 2) - 5), ((countsquares[i][j].y1 + countsquares[i][j].y2) / 2) + 5);
+
+            }
+            if (countvals[j][i] != -1) {
+                ctx.fillText(countvals[j][i], (((countsquares[i][j].x1 + countsquares[i][j].x2) / 2) - 5), ((countsquares[i][j].y1 + countsquares[i][j].y2) / 2) + 5);
+
+            }
+        }
+
+    }
+
+}
+
+function draw() {
+
+    for (var i = 0; i < listeners.length; i++) {
+        window.removeEventListener('click', listeners[i]);
+    }
+
     //hide the dimension selector
-    document.getElementById('dim_div').style.display="none";
-      document.getElementById('solve_div').style.display="block";
-         document.getElementById('gameboard').style.display="block";
+    document.getElementById('dim_div').style.display = "none";
+    document.getElementById('solve_div').style.display = "block";
+    document.getElementById('gameboard').style.display = "block";
     //create the canvas
-    N=document.getElementById('dim_input').value;
-    var canvas = document.getElementById('gameboard');
-    size = 60*N;
+    N = document.getElementById('dim_input').value;
+    canvas = document.getElementById('gameboard');
+
+    if (N > 7) {
+        size = 55 * N;
+    }
+    if (N < 7) {
+        size = 60 * N;
+    }
     canvas.width = size;
     canvas.height = size;
-    
-    if(canvas.getContext){
+
+    if (canvas.getContext) {
         ctx = canvas.getContext('2d');
-         points=[];
-         pointsRot=[];
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+        points = [];
+        pointsRot = [];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = "800 20px Arial";
-        
+
         //create the gameboard
-        for(var i =0;i<N;i++){
-            var boardRow=[];
-            for(var j = 0;j<N;j++){   
-                var curPoint = new point((i*SPACE)+PAD, (j*SPACE)+PAD, 5, 0, Math.PI*2, false,ctx)
+        for (var i = 0; i < N; i++) {
+            var boardRow = [];
+            for (var j = 0; j < N; j++) {
+                var curPoint = new point((i * SPACE) + PAD, (j * SPACE) + PAD, 5, 0, Math.PI * 2, false, ctx)
                 boardRow.push(curPoint);
                 curPoint.draw();
             }
@@ -302,151 +394,163 @@ function draw(){
         console.log("Points Array");
         console.log(points);
 
-         for(var i =0;i<N;i++){
-           pointsRot.push([]);
+        for (var i = 0; i < N; i++) {
+            pointsRot.push([]);
         }
-         for(var i =0;i<N;i++){
-           for(var j = 0;j<N;j++){
-             pointsRot[j].push(points[i][j]);
-           }
+        for (var i = 0; i < N; i++) {
+            for (var j = 0; j < N; j++) {
+                pointsRot[j].push(points[i][j]);s
+            }
         }
-      
-         console.log("Rot Points");
+
+        console.log("Rot Points");
         console.log(pointsRot);
         console.log("Flattened Points Rot");
-            flatPoints = pointsRot.flat();
-          console.log(flatPoints);
+        flatPoints = pointsRot.flat();
+        console.log(flatPoints);
         //create the count squares
-        for(var i=0;i<(N-1);i++){
-            var countRow=[];
-            var valRow=[];
-            for(var j=0;j<(N-1);j++){   
-                var squarestring="square "+i+j;
-            var curSquare=new countNumSquare(points[i][j].x,points[i][j].y,points[i+1][j].x,points[i][j+1].y,canvas,squarestring,ctx,i,j);
-                
-            console.log(curSquare);
+        for (var i = 0; i < (N - 1); i++) {
+            var countRow = [];
+            var valRow = [];
+            for (var j = 0; j < (N - 1); j++) {
+                var squarestring = "square " + i + j;
+                var curSquare = new countNumSquare(points[i][j].x, points[i][j].y, points[i + 1][j].x, points[i][j + 1].y, canvas, squarestring, ctx, i, j, true);
+
+                console.log(curSquare);
                 countRow.push(curSquare);
                 valRow.push(-1);
-                  }
+            }
             countsquares.push(countRow);
             countvals.push(valRow);
         }
-     
+
         console.log(countsquares);
         console.log(countvals);
-        
-        
-        
+
+
+
     }
-    
-    
-    
+
+
+
 }
 
 //Function to solve
-function solve(){
+function solve() {
 
-var countArrayString="";
-for(var i = 0; i<N-1;i++){
- for(var j = 0;j<N-1;j++){
- countArrayString+= countvals[i][j]+" ";
- console.log(countvals[i][j]);
- 
- }
 
-}
-console.log(countArrayString); 
 
-        isChecked=document.getElementById("genStats").checked;
-        console.log(isChecked);
-        if(!isChecked){
-  var xhr = createCORSRequest('GET', "http://localhost:8080/sl/solve/?puzzledim="+N+"&countvals="+countArrayString+"&stats="+false);
-        }
-
-        if(isChecked){
-            var xhr = createCORSRequest('GET', "http://localhost:8080/sl/solve/?puzzledim="+N+"&countvals="+countArrayString+"&stats="+true);
+    var countArrayString = "";
+    for (var i = 0; i < N - 1; i++) {
+        for (var j = 0; j < N - 1; j++) {
+            countArrayString += countvals[i][j] + " ";
+            console.log(countvals[i][j]);
 
         }
-			
-				
-				if (!xhr) {
-  					alert("CORS not supported");
-				}
 
-				// CORS requests are Asynchronous, i.e. we do not wait for a response, instead we define an action
-				// to do when the response arrives 
-				xhr.onload = function(e) {
- 					var responseText = xhr.response;
-					console.log(responseText); 
-          console.log(typeof responseText);
+    }
+    console.log(countArrayString);
 
-          console.log("is checked status "+isChecked);
-          if(isChecked){
+    isChecked = document.getElementById("genStats").checked;
+    console.log(isChecked);
+    if (!isChecked) {
+        var xhr = createCORSRequest('GET', "http://localhost:8080/sl/solve/?puzzledim=" + N + "&countvals=" + countArrayString + "&stats=" + false);
+    }
+
+    if (isChecked) {
+        var xhr = createCORSRequest('GET', "http://localhost:8080/sl/solve/?puzzledim=" + N + "&countvals=" + countArrayString + "&stats=" + true);
+
+    }
+
+
+    if (!xhr) {
+        alert("CORS not supported");
+    }
+
+    // CORS requests are Asynchronous, i.e. we do not wait for a response, instead we define an action
+    // to do when the response arrives 
+    xhr.onload = function(e) {
+        var responseText = xhr.response;
+        console.log(responseText);
+        console.log(typeof responseText);
+
+        console.log("is checked status " + isChecked);
+        if (isChecked) {
             console.log("IS CHECKED!!!!!!!!!!!!!!!");
-            var obj = JSON.parse(responseText); 
-             solutionArray=JSON.parse(obj.pairs);
-             numSolutions=obj.numSolutions;
-             solveTime=obj.solveTime;
-               document.getElementById("statsDisplay").style.display="block";
-               document.getElementById("dispNumSol").innerHTML="Number Solutions: "+numSolutions;
-               document.getElementById("dispTimeSol").innerHTML="Time to Solve: "+solveTime+" s";
+            var obj = JSON.parse(responseText);
+            solutionArray = JSON.parse(obj.pairs);
+            numSolutions = obj.numSolutions;
+            solveTime = obj.solveTime;
+            document.getElementById("statsDisplay").style.display = "block";
+            document.getElementById("dispNumSol").innerHTML = "Number Solutions: " + numSolutions;
+            document.getElementById("dispTimeSol").innerHTML = "Time to Solve: " + solveTime + " s";
 
-                
-             console.log(solutionArray);
-             console.log(numSolutions);
-             console.log(typeof solveTime);
-             console.log(solveTime);
 
-          }
-          if(!isChecked){
-             console.log("--NOT CHECKED--");
-solutionArray =JSON.parse(responseText);
-          console.log(solutionArray);
-          console.log(typeof solutionArray);
-          }
+            console.log(solutionArray);
+            console.log(numSolutions);
+            console.log(typeof solveTime);
+            console.log(solveTime);
 
-            displaySolution();
-					
-				};
-				
-				// We have done everything we need to prepare the CORS request, so send it
-				xhr.send();
+        }
+        if (!isChecked) {
+            console.log("--NOT CHECKED--");
+            solutionArray = JSON.parse(responseText);
+            console.log(solutionArray);
+            console.log(typeof solutionArray);
+        }
+
+        displaySolution();
+
+    };
+
+    // We have done everything we need to prepare the CORS request, so send it
+    xhr.send();
 }
-		function createCORSRequest(method, url) {
-			    var xhr = new XMLHttpRequest();
-			    if ("withCredentials" in xhr) {
 
-			        // Check if the XMLHttpRequest object has a "withCredentials" property.
-			        // "withCredentials" only exists on XMLHTTPRequest2 objects.
-			        xhr.open(method, url, true);
+function createCORSRequest(method, url) {
+    var xhr = new XMLHttpRequest();
+    if ("withCredentials" in xhr) {
 
-			    } else if (typeof XDomainRequest != "undefined") {
+        // Check if the XMLHttpRequest object has a "withCredentials" property.
+        // "withCredentials" only exists on XMLHTTPRequest2 objects.
+        xhr.open(method, url, true);
 
-			        // Otherwise, check if XDomainRequest.
-			        // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-			        xhr = new XDomainRequest();
-			        xhr.open(method, url);
-			    } else {
+    } else if (typeof XDomainRequest != "undefined") {
 
-			        // Otherwise, CORS is not supported by the browser.
-			        xhr = null;
+        // Otherwise, check if XDomainRequest.
+        // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+    } else {
 
-			    }
-			    return xhr;
-			}
+        // Otherwise, CORS is not supported by the browser.
+        xhr = null;
 
-function displaySolution(){
+    }
+    return xhr;
+}
 
-for(var i =0;i<N*N;i++){
-   
-      ctx.beginPath();
-      ctx.lineWidth=5;
-      ctx.moveTo(flatPoints[solutionArray[i][0]].x,flatPoints[solutionArray[i][0]].y);
-      ctx.lineTo(flatPoints[solutionArray[i][1]].x,flatPoints[solutionArray[i][1]].y);
-      ctx.stroke();
-    
-    
-  }
+function displaySolution() {
+
+    for (var i = 0; i < N * N; i++) {
+        document.getElementById("new-options-div").style.display = "inline-block";
+        document.getElementById("solve_div").style.display = "none";
+        ctx.beginPath();
+        ctx.lineWidth = 5;
+        ctx.moveTo(flatPoints[solutionArray[i][0]].x, flatPoints[solutionArray[i][0]].y);
+        ctx.lineTo(flatPoints[solutionArray[i][1]].x, flatPoints[solutionArray[i][1]].y);
+        ctx.stroke();
+
+
+    }
+    for (var i = 0; i < (N - 1); i++) {
+
+        for (var j = 0; j < (N - 1); j++) {
+
+            countsquares[i][j].active = false;
+        }
+    }
+
 }
 
 

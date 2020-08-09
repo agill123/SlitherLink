@@ -2,43 +2,45 @@ package com.puzzle.core;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.tools.ArrayUtils;
 
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
-
-/**
- * Generates a minimal SL puzzle of a given dimension
- */
 public class SLGen{
-
     private int n;  //puzzle dimension
     private int m;  //sub-tour ubound
     private int l; //sub-tour lbound
 
+    private Model model;
+    private Solver solver;
 
     private Random rand; //random number generator
     private long seed;   //gen specific puzzle
-
-    private Model model;
-    private Solver solver;
+    private String diff;    //puzzle difficulty specified
 
     private int[][] count;  //edge reqs
     private IntVar[][] a;   //adjacency matrix
     private IntVar[][] v;   //vertex matrix
     private IntVar[] tour;  //sub-tour array
+    private boolean trace;
 
-    public SLGen(int n, long seed){
+    public SLGen(int n,String diff,long seed){
+        this(n,diff);
+        this.seed=seed;
+        rand = new Random(seed);
 
     }
 
-    public SLGen(int n){
+    public SLGen(int n,String diff) {
+        trace=true;
+        seed = System.currentTimeMillis();
+        this.diff=diff;
+
+        rand= new Random(seed);
         model = new Model("SL Solver");
         solver = model.getSolver();
         this.n = n;
@@ -47,7 +49,6 @@ public class SLGen{
         a = new IntVar[n*n][n*n];
         v = new IntVar[n][n];
         count= new int[n-1][n-1];
-        rand= new Random();
 
         //create node grid
         //define domains
@@ -96,14 +97,17 @@ public class SLGen{
 
 
 
-
-
-
-
-
     }
+
+    public long getSeed() {
+        return seed;
+    }
+    public String getDiff() {
+    	return diff;
+    }
+
     private void setCount(int[][] count){
-     this.count=count;
+        this.count=count;
         //constrain square edges
         for(int i = 0;i < n-1 ; i++){
             for(int j = 0;j < n-1; j++){
@@ -123,39 +127,75 @@ public class SLGen{
                     };
                     model.sum(e,"=",count[i][j]).post();
                 }
+
             }
         }
+
+
+
     }
-    public int[][] countSolve()  {
-        int solNum=3;
+//merge the two functions if approach stays the same
+    public int[][] countSolve(){
         int[][] randCount=new int [n-1][n-1];
+        for(int i = 0;i < n-1 ; i++) {
+            for (int j = 0; j < n - 1; j++) {
+                randCount[i][j] = -1;
+            }
+        }
+        return reducePuzzle(diff,baseCountSolve(n,randCount));
+
+    }
+    private int[][] baseCountSolve(int n,int[][] randCount){
+
+
+
+        int solNum=3;
+        SLGen newGen = null;
+        //randomly initialise the count grid
+
+        for(int i = 0; i<=n; i++) {
+            int a = rand.nextInt(n - 1);
+            int b = rand.nextInt(n - 1);
+            randCount[a][b] = rand.nextInt(4);}
         for(int i = 0;i < n-1 ; i++){
             for(int j = 0;j < n-1; j++){
-                randCount[i][j]=-1;
+
+                System.out.print(randCount[i][j]+ " ");
             }
+            System.out.println();
         }
 
-
-
-
         while(solNum!=2){
-            int[][] prevCount = new int[n-1][n-1];
-            for(int i = 0;i < n-1 ; i++){
-                for(int j = 0;j < n-1; j++){
-                    prevCount[i][j]=randCount[i][j];
-                }
-            }
-            randCount[rand.nextInt(n-1)][rand.nextInt(n-1)]=rand.nextInt(4);
+            //initialise prev count array
 
 
-
-
-            SLGen newGen = new SLGen(n);
+            newGen = new SLGen(n,diff);
             newGen.setCount(randCount);
             solNum=newGen.solve();
+            if(solNum==3){
+                int a = rand.nextInt(n - 1);
+                int b = rand.nextInt(n - 1);
+                randCount[a][b] = -1;
+
+            }
+
             if(solNum==0){
-             randCount=prevCount;
-             System.out.println("Restore rand count");
+                for(int i = 0;i < n-1 ; i++) {
+                    for (int j = 0; j < n - 1; j++) {
+                        randCount[i][j] = -1;
+                    }
+                }
+                for(int i = 0;i<=4;i++) {
+                    int a = rand.nextInt(n - 1);
+                    int b = rand.nextInt(n - 1);
+                    randCount[a][b] = rand.nextInt(4);}
+
+
+            }
+            if(trace){
+                System.out.print("\n---------------------------\n"
+                        +"The number of solutions is "+solNum+
+                        "\n---------------------------\n");
                 for(int i = 0;i < n-1 ; i++){
                     for(int j = 0;j < n-1; j++){
 
@@ -163,55 +203,398 @@ public class SLGen{
                     }
                     System.out.println();
                 }
+                System.out.print("\n--------------------------------\n");
 
             }
-            System.out.print("\n---------------------------\n"+"The number of solutions is "+solNum+"\n---------------------------\n");
-            for(int i = 0;i < n-1 ; i++){
-                for(int j = 0;j < n-1; j++){
-
-                    System.out.print(randCount[i][j]+ " ");
-                }
-                System.out.println();
-            }
-            System.out.print("\n---------------------------------------------------------------------------------------------\n");
-
 
         }
-       return randCount;
+        return newGen.getCount();
+
+
+    }
+    private int[][] getCount(){
+        return count;
     }
     private int solve(){
+        int[][] fullCount = new int[0][];
         solver.setSearch(Search.minDomLBSearch(tour)); // fail-first
-        //solver.limitTime("0.1s");
         solver.limitSolution(3);
-
-
         int numSol=0;
-
         while(solver.solve()){
+            fullCount=getFullCount();
+
             numSol++;
-            for(int i=0;i<n*n;i++){
-               System.out.print(tour[i].getValue()+" ");
-            }
-            System.out.println();
         }
         solver.printShortStatistics();
-        System.out.println(solver.getTimeCount());
-        System.out.println(solver.isStopCriterionMet());
-        //if(!solver.isStopCriterionMet())
+        count=fullCount;
         return numSol;
-       //return 1;
+    }
+    private int[][] getFullCount(){
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - 1; j++) {
+
+                int e =
+                        a[(i * n) + j][(i * n) + j + 1].getValue() +
+                                a[(i * n) + j + 1][(i * n) + j].getValue() +
+
+                                a[(i * n) + j + n][(i * n) + j + n + 1].getValue() +
+                                a[(i * n) + j + n + 1][(i * n) + j + n].getValue() +
+
+                                a[(i * n) + j][(i * n) + j + n].getValue() +
+                                a[(i * n) + j + n][(i * n) + j].getValue() +
+
+                                a[(i * n) + j + 1][(i * n) + j + n + 1].getValue() +
+                                a[(i * n) + j + n + 1][(i * n) + j + 1].getValue();
+
+                count[i][j] = e;
+            }
+
+        }
+        return count;
+    }
+
+    private int[][] reducePuzzle(String diff, int[][] oldCount){
+        for(int i = 0;i<n-1;i++){
+            for(int j = 0;j<n-1;j++){
+                if(diff.equals("easy")){
+                    if(oldCount[i][j]==2){
+                        oldCount[i][j]=-1;
+                        SLSolve sl =new SLSolve(n,oldCount);
+                        int num=sl.findNumSolutions();
+                        if(num > 2){
+                            oldCount[i][j]=2;
+                        }
+
+                    }
+                }
+                if(diff.equals("medium")){
+                    if(oldCount[i][j]==2){
+                        oldCount[i][j]=-1;
+                        SLSolve sl =new SLSolve(n,oldCount);
+                        int num=sl.findNumSolutions();
+                        if(num > 2){
+                            oldCount[i][j]=2;
+                        }
+
+                    }
+                    if(oldCount[i][j]==3){
+                        oldCount[i][j]=-1;
+                        SLSolve sl =new SLSolve(n,oldCount);
+                        int num=sl.findNumSolutions();
+                        if(num > 2){
+                            oldCount[i][j]=3;
+                        }
+
+                    }
+                }
+                if(diff.equals("difficult")){
+                    if(oldCount[i][j]==0){
+                        oldCount[i][j]=-1;
+                        SLSolve sl =new SLSolve(n,oldCount);
+                        int num=sl.findNumSolutions();
+                        if(num > 2){
+                            oldCount[i][j]=0;
+                        }
+
+                    }
+                    int val1=rand.nextInt(n-1);
+                    int val2=rand.nextInt(n-1);
+                    int temp = oldCount[val1][val2];
+                    oldCount[val1][val2]=-1;
+                    SLSolve sl =new SLSolve(n,oldCount);
+                    int num=sl.findNumSolutions();
+                    if(num > 2){
+                        oldCount[val1][val2]=temp;
+                    }
+                }
+
+            }}
+        return oldCount;
+    }
+    public void rules(){
+        Tuples LC = new Tuples();
+        LC.add(1,1,1,0,0,0,0,0);
+        LC.add(0,0,0,0,1,0,1,1);
+        LC.add(0,0,0,0,1,1,1,0);
+        LC.add(0,0,0,0,0,0,0,0);
+        LC.add(1,0,0,0,0,0,0,0);
+        LC.add(0,0,0,0,0,1,0,0);
+        LC.add(0,0,0,0,0,0,0,1);
+        LC.add(0,0,0,0,0,1,0,1);
+        LC.add(0,1,1,1,0,0,0,0);
+        LC.add(0,0,0,1,0,0,0,0);
+        LC.add(1,0,0,1,0,0,0,0);
+        LC.add(0,0,1,0,0,0,0,0);
+        LC.add(0,0,0,0,0,0,1,0);
+        LC.add(0,0,0,0,1,0,0,0);
+        LC.add(0,0,0,0,0,1,1,0);
+        LC.add(0,0,0,0,1,0,0,1);
+        LC.add(0,0,0,0,1,1,0,0);
+        LC.add(1,0,1,0,0,0,0,0);
+        LC.add(0,0,0,0,0,0,1,1);
+        LC.add(0,0,0,0,1,1,0,1);
+        LC.add(0,0,1,1,0,0,0,0);
+        LC.add(0,0,0,0,0,1,1,1);
+        LC.add(0,1,0,0,0,0,0,0);
+        LC.add(1,0,1,1,0,0,0,0);
+        LC.add(1,1,0,0,0,0,0,0);
+        LC.add(0,1,0,1,0,0,0,0);
+        LC.add(1,1,0,1,0,0,0,0);
+        LC.add(0,0,0,0,1,0,1,0);
+        LC.add(0,1,1,0,0,0,0,0);
+
+        for(int i=n;i<n-1;i+=n){
+            IntVar[] adjLC=new IntVar[]{a[i][i+1],a[i+1][(i+n)+1],a[(i+n)+1][i+n],a[i+n][i]
+                    ,a[i][i+n],a[i+n][(i+n)+1],a[(i+n)+1][i+1],a[i+1][i]};
+            model.table(adjLC,LC).post();
+
+        }
+
+        Tuples RC = new Tuples();
+        RC.add(1,1,1,0,0,0,0,0);
+        RC.add(0,0,0,0,1,1,1,0);
+        RC.add(0,0,0,0,1,0,1,1);
+        RC.add(1,0,0,0,0,0,0,0);
+        RC.add(0,0,0,0,0,0,0,0);
+        RC.add(0,0,0,0,0,1,0,0);
+        RC.add(0,0,0,0,0,0,0,1);
+        RC.add(0,0,0,0,0,1,0,1);
+        RC.add(0,1,1,1,0,0,0,0);
+        RC.add(0,0,0,1,0,0,0,0);
+        RC.add(1,0,0,1,0,0,0,0);
+        RC.add(0,0,1,0,0,0,0,0);
+        RC.add(0,0,0,0,0,0,1,0);
+        RC.add(0,0,0,0,1,0,0,0);
+        RC.add(0,0,0,0,0,1,1,0);
+        RC.add(0,0,0,0,0,0,1,1);
+        RC.add(0,0,0,0,1,1,0,0);
+        RC.add(0,0,0,0,1,0,0,1);
+        RC.add(1,0,1,0,0,0,0,0);
+        RC.add(0,0,0,0,0,1,1,1);
+        RC.add(0,0,0,0,1,1,0,1);
+        RC.add(0,0,1,1,0,0,0,0);
+        RC.add(0,1,0,0,0,0,0,0);
+        RC.add(1,0,1,1,0,0,0,0);
+        RC.add(1,1,0,0,0,0,0,0);
+        RC.add(1,1,0,1,0,0,0,0);
+        RC.add(0,1,0,1,0,0,0,0);
+        RC.add(0,0,0,0,1,0,1,0);
+        RC.add(0,1,1,0,0,0,0,0);
+
+        for(int i=n;i<n-1;i+=n){
+            IntVar[] adjRC=new IntVar[]{a[(i+n)-2][(i+n)-1],a[(i+n)-1][(i+n+n)-1],a[(i+n+n)-1][(i+n+n)-2],a[(i+n+n)-2][(i+n)-2]
+                    ,a[(i+n)-2][(i+n+n)-2],a[(i+n+n)-2][(i+n+n)-1],a[(i+n+n)-1][(i+n)-1],a[(i+n)-1][(i+n)-2]};
+            model.table(adjRC,RC).post();
+
+        }
+
+
+
+        Tuples TL = new Tuples();
+        TL.add(0,0,0,0,1,0,1,1);
+        TL.add(0,0,0,0,0,0,1,0);
+        TL.add(0,0,0,0,0,0,0,0);
+        TL.add(0,0,0,0,1,0,0,1);
+        TL.add(0,0,0,0,0,1,1,0);
+        TL.add(0,0,0,0,0,1,0,0);
+        TL.add(0,0,0,0,1,1,0,1);
+        TL.add(0,1,0,0,0,0,0,0);
+        TL.add(1,0,1,1,0,0,0,0);
+        TL.add(1,0,0,1,0,0,0,0);
+        TL.add(0,0,1,0,0,0,0,0);
+        TL.add(1,1,0,1,0,0,0,0);
+        TL.add(0,1,1,0,0,0,0,0);
+
+        IntVar[] adjTL=new IntVar[]{a[0][1],a[1][n+1],a[n+1][n],a[n][0]
+                ,a[0][n],a[n][n+1],a[n+1][1],a[1][0]};
+
+        model.table(adjTL,TL).post();
+
+        Tuples TC=new Tuples();
+        TC.add(1,1,1,0,0,0,0,0);
+        TC.add(0,0,0,0,1,1,1,0);
+        TC.add(0,0,0,0,1,0,1,1);
+        TC.add(0,0,0,0,0,0,0,0);
+        TC.add(1,0,0,0,0,0,0,0);
+        TC.add(0,0,0,0,0,1,0,0);
+        TC.add(0,0,0,0,0,0,0,1);
+        TC.add(0,0,0,0,0,1,0,1);
+        TC.add(0,1,1,1,0,0,0,0);
+        TC.add(0,0,0,1,0,0,0,0);
+        TC.add(1,0,0,1,0,0,0,0);
+        TC.add(0,0,1,0,0,0,0,0);
+        TC.add(0,0,0,0,1,0,0,0);
+        TC.add(0,0,0,0,0,0,1,0);
+        TC.add(0,0,0,0,0,1,1,0);
+        TC.add(0,0,0,0,1,1,0,0);
+        TC.add(0,0,0,0,1,0,0,1);
+        TC.add(0,0,0,0,0,0,1,1);
+        TC.add(1,0,1,0,0,0,0,0);
+        TC.add(0,0,1,1,0,0,0,0);
+        TC.add(0,0,0,0,0,1,1,1);
+        TC.add(0,0,0,0,1,1,0,1);
+        TC.add(0,1,0,0,0,0,0,0);
+        TC.add(1,0,1,1,0,0,0,0);
+        TC.add(1,1,0,0,0,0,0,0);
+        TC.add(0,0,0,0,1,0,1,0);
+        TC.add(0,1,0,1,0,0,0,0);
+        TC.add(1,1,0,1,0,0,0,0);
+        TC.add(0,1,1,0,0,0,0,0);
+        for(int i=1;i<n-2;i++){
+            IntVar[] adjTC=new IntVar[]{a[i][i+1],a[i+1][i+n+1],a[i+n+1][i+n],a[i+n][i]
+                    ,a[i][i+n],a[i+n][i+n+1],a[i+n+1][i+1],a[i+1][i]};
+            model.table(adjTC,TC).post();
+
+        }
+
+        Tuples BC = new Tuples();
+        BC.add(1,1,1,0,0,0,0,0);
+        BC.add(0,0,0,0,1,1,1,0);
+        BC.add(0,0,0,0,1,0,1,1);
+        BC.add(0,0,0,0,0,0,0,0);
+        BC.add(1,0,0,0,0,0,0,0);
+        BC.add(0,0,0,0,0,0,0,1);
+        BC.add(0,0,0,0,0,1,0,0);
+        BC.add(0,0,0,0,0,1,0,1);
+        BC.add(0,1,1,1,0,0,0,0);
+        BC.add(0,0,0,1,0,0,0,0);
+        BC.add(1,0,0,1,0,0,0,0);
+        BC.add(0,0,1,0,0,0,0,0);
+        BC.add(0,0,0,0,0,0,1,0);
+        BC.add(0,0,0,0,1,0,0,0);
+        BC.add(0,0,0,0,1,0,0,1);
+        BC.add(1,0,1,0,0,0,0,0);
+        BC.add(0,0,0,0,0,1,1,0);
+        BC.add(0,0,0,0,1,1,0,0);
+        BC.add(0,0,0,0,0,0,1,1);
+        BC.add(0,0,1,1,0,0,0,0);
+        BC.add(0,0,0,0,1,1,0,1);
+        BC.add(0,0,0,0,0,1,1,1);
+        BC.add(1,0,1,1,0,0,0,0);
+        BC.add(0,1,0,0,0,0,0,0);
+        BC.add(1,1,0,0,0,0,0,0);
+        BC.add(0,1,0,1,0,0,0,0);
+        BC.add(1,1,0,1,0,0,0,0);
+        BC.add(0,0,0,0,1,0,1,0);
+        BC.add(0,1,1,0,0,0,0,0);
+        for(int i=1;i<n-2;i++){
+            IntVar[] adjBC=new IntVar[]{a[(n*n)-n-n+i][(n*n)-n-n+i+1],a[(n*n)-n-n+i+1][(n*n)-n+i+1],a[(n*n)-n+i+1][(n*n)-n+i],a[(n*n)-n+i][(n*n)-n-n+i]
+                    ,a[(n*n)-n-n+i][(n*n)-n+i],a[(n*n)-n+i][(n*n)-n+i+1],a[(n*n)-n+i+1][(n*n)-n-n+i+1],a[(n*n)-n-n+i+1][(n*n)-n-n+i]};
+            model.table(adjBC,BC).post();
+
+        }
+
+
+
+        Tuples TR = new Tuples();
+        TR.add(1,1,1,0,0,0,0,0);
+        TR.add(0,0,0,0,1,0,1,1);
+        TR.add(0,0,0,0,1,0,0,0);
+        TR.add(0,0,0,0,1,1,0,0);
+        TR.add(0,0,0,0,0,0,0,0);
+        TR.add(0,0,0,0,0,0,1,1);
+        TR.add(0,0,0,0,0,1,0,0);
+        TR.add(0,0,0,0,0,1,1,1);
+        TR.add(0,0,1,1,0,0,0,0);
+        TR.add(1,1,0,0,0,0,0,0);
+        TR.add(0,0,0,1,0,0,0,0);
+        TR.add(0,0,1,0,0,0,0,0);
+        TR.add(1,1,0,1,0,0,0,0);
+
+        IntVar[] adjTR=new IntVar[]{a[n-2][n-1],a[n-1][(n+n)-1],a[(n+n)-1][(n+n)-2],a[(n+n)-2][n-2]
+                ,a[n-2][(n+n)-2],a[(n+n)-2][(n+n)-1],a[(n+n)-1][n-1],a[n-1][n-2]};
+        model.table(adjTR,TC).post();
+
+        Tuples BL = new Tuples();
+        BL.add(0,0,0,0,1,1,1,0);
+        BL.add(0,0,0,0,0,0,1,0);
+        BL.add(0,0,0,0,0,0,1,1);
+        BL.add(0,0,0,0,0,0,0,0);
+        BL.add(1,0,0,0,0,0,0,0);
+        BL.add(0,0,0,0,1,1,0,0);
+        BL.add(0,0,1,1,0,0,0,0);
+        BL.add(0,0,0,0,0,0,0,1);
+        BL.add(0,0,0,0,1,1,0,1);
+        BL.add(1,0,1,1,0,0,0,0);
+        BL.add(0,1,0,0,0,0,0,0);
+        BL.add(1,1,0,0,0,0,0,0);
+        BL.add(0,1,1,1,0,0,0,0);
+
+        IntVar[] adjBL=new IntVar[]{a[(n*n)-n-n][(n*n)-n-n+1],a[(n*n)-n-n+1][(n*n)-n+1],a[(n*n)-n+1][(n*n)-n],a[(n*n)-n][(n*n)-n-n]
+                ,a[(n*n)-n-n][(n*n)-n],a[(n*n)-n][(n*n)-n+1],a[(n*n)-n+1][(n*n)-n-n+1],a[(n*n)-n-n+1][(n*n)-n-n]};
+        model.table(adjBL,BL).post();
+
+
+        Tuples BR = new Tuples();
+        BR.add(1,1,1,0,0,0,0,0);
+        BR.add(0,0,0,0,1,1,1,0);
+        BR.add(0,0,0,0,1,0,0,0);
+        BR.add(0,0,0,0,0,0,0,0);
+        BR.add(0,0,0,0,0,1,1,0);
+        BR.add(1,0,0,0,0,0,0,0);
+        BR.add(0,0,0,0,1,0,0,1);
+        BR.add(0,0,0,0,0,1,1,1);
+        BR.add(0,0,0,0,0,0,0,1);
+        BR.add(0,1,1,1,0,0,0,0);
+        BR.add(0,0,0,1,0,0,0,0);
+        BR.add(1,0,0,1,0,0,0,0);
+        BR.add(0,1,1,0,0,0,0,0);
+        IntVar[] adjBR=new IntVar[]{a[(n*n)-2-n][(n*n)-1-n],a[(n*n)-1-n][(n*n)-1],a[(n*n)-1][(n*n)-2],a[(n*n)-2][(n*n)-2-n]
+                ,a[(n*n)-2-n][(n*n)-2],a[(n*n)-2][(n*n)-1],a[(n*n)-1][(n*n)-1-n],a[(n*n)-1-n][(n*n)-2-n]};
+        model.table(adjBR,BR).post();
+
+        Tuples C = new Tuples();
+        C.add(1,1,1,0,0,0,0,0);
+        C.add(0,0,0,0,1,0,1,1);
+        C.add(0,0,0,0,1,1,1,0);
+        C.add(1,0,0,0,0,0,0,0);
+        C.add(0,0,0,0,0,0,0,0);
+        C.add(0,0,0,0,0,1,0,0);
+        C.add(0,0,0,0,0,0,0,1);
+        C.add(0,0,0,0,0,1,0,1);
+        C.add(0,1,1,1,0,0,0,0);
+        C.add(0,0,0,1,0,0,0,0);
+        C.add(1,0,0,1,0,0,0,0);
+        C.add(0,0,1,0,0,0,0,0);
+        C.add(0,0,0,0,1,0,0,0);
+        C.add(0,0,0,0,0,0,1,0);
+        C.add(0,0,0,0,1,1,0,0);
+        C.add(1,0,1,0,0,0,0,0);
+        C.add(0,0,0,0,1,0,0,1);
+        C.add(0,0,0,0,0,0,1,1);
+        C.add(0,0,0,0,0,1,1,0);
+        C.add(0,0,1,1,0,0,0,0);
+        C.add(0,0,0,0,1,1,0,1);
+        C.add(0,0,0,0,0,1,1,1);
+        C.add(1,0,1,1,0,0,0,0);
+        C.add(0,1,0,0,0,0,0,0);
+        C.add(1,1,0,0,0,0,0,0);
+        C.add(1,1,0,1,0,0,0,0);
+        C.add(0,1,0,1,0,0,0,0);
+        C.add(0,0,0,0,1,0,1,0);
+        C.add(0,1,1,0,0,0,0,0);
+        for(int i=1;i<n-2;i++){
+            for(int j=n;j<n-2;j++){
+                IntVar[] adjC = new IntVar[] {a[(j*i)+1][(j*i)+2],a[(j*i)+2][((j*i)+n)+2],a[((j*i)+n)+2][((j*i)+n)+1],a[((j*i)+n)+1][(j*i)+1]
+                        ,a[(j*i)+1][((j*i)+n)+1],a[((j*i)+n)+1][((j*i)+n)+2],a[((j*i)+n)+2][(j*i)+2],a[(j*i)+2][(j*i)+1]};
+
+                model.table(adjC,C).post();
+            }
+        }
+
 
 
 
     }
 
-
-
-
-
     public static void main(String[] args) {
+        long start =System.currentTimeMillis();
+        String diff = "easy";
         int n=5;
-        SLGen sl = new SLGen(n);
+        long seed=1596895970558L;
+        SLGen sl = new SLGen(n,diff,seed);
+
+        sl.rules();
         int[][] answer=sl.countSolve();
         System.out.println("The count matrix going into the solver is");
         for(int i = 0;i < n-1 ; i++){
@@ -224,13 +607,15 @@ public class SLGen{
         SLSolve sl2=new SLSolve(n,answer);
         sl2.findNumSolutions();
         sl2.stats();
+        System.out.println("Total time: "+((System.currentTimeMillis()-start))/1000.0);
+        System.out.println("THE SEED IS "+sl.getSeed());
+        System.out.println("THE DIFF IS "+sl.getDiff());
+      
+       
 
 
 
 
     }
-
-
-
 
 }

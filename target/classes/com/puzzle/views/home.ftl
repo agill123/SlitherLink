@@ -8,8 +8,10 @@
 
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">  
     <style>
+    
+    
       .bd-placeholder-img {
         font-size: 1.125rem;
         text-anchor: middle;
@@ -18,6 +20,13 @@
         -ms-user-select: none;
         user-select: none;
       }
+      
+      
+      .navbar-brand{
+     font-family: 'Roboto', sans-serif;
+          font-size:20px;
+          
+          }
  body {
          
         font-family: 'Roboto', sans-serif;
@@ -36,7 +45,7 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-  <a class="navbar-brand" href="#">SLOnline</a>
+  <a class="navbar-brand" href="#">SlitherLink Online</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -61,7 +70,7 @@
 <main role="main">
   <div class="jumbotron">
     <div class="container">
-      <h1 class="display-3">Welcome to SLOnline</h1>
+      <h1 class="display-3">Welcome</h1>
       <p>Choose an option below to get started</p>
 
     </div>
