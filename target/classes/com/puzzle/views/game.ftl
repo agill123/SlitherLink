@@ -197,7 +197,25 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
         </button>
       </div>
       <div class="modal-body">
-     Link the dots to form a single continous loop where the squares with clues are surrounded with the number of links equal to the value of the clue.
+        <ul>
+          <li>
+     Link the dots by clicking in the space between them.Try to form a single continous loop where the squares with clues are surrounded with the number of links equal to the value of the clue.
+   </li>
+    <li>
+     If you want to mark a direction the loop cannot go click twice to display the x.
+     </li>
+   <li>
+     If you want to remove a link you have placed, click twice to clear.
+   </li>
+   <li>
+     To check if you have the correct solution click Check Solution. If you have made any wrong moves it will display them.
+   </li>
+   <li>
+     To hide the wrong moves, click hide wrong moves
+   </li>
+     To show the answer click show answer. This will end the game.
+   </ul>
+    
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -633,13 +651,13 @@ function draw() {
     if (N > 7) {
         size = 55 * N;
     }
-    if (N < 7) {
+    if (N <= 7) {
         size = 60 * N;
     }
 
     canvas.width = size;
     canvas.height = size;
-
+     
     if (canvas.getContext) {
         ctx = canvas.getContext('2d');
 

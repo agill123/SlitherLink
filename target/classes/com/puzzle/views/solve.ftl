@@ -18,6 +18,10 @@
         font-weight: 500;
         background-color: #fafafa;
          }
+         #solve-instructions{
+
+          margin-left: -10px;
+         }
 
 
          #new-options-div{
@@ -50,7 +54,7 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
          }
          #dim_input{
     display: block;
-    width: 40%;
+    width: 30%;
     padding: .375rem .75rem;
     font-size: 1.1rem;
     font-weight: 600;
@@ -121,7 +125,7 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
             <div class ="row">
                 <div  id=dim_div>
                <div class = "col-sm-12">
-                  <p>Enter a puzzle dimension <a class="btn btn-secondary" onclick="draw()"; role="button">Go&raquo;</a></p>
+                  <p id="solve-instructions">Enter the dimension of the puzzle you want to solve <a class="btn btn-secondary" onclick="draw()"; role="button">Go&raquo;</a></p>
                    
                    
                </div>
@@ -368,7 +372,7 @@ function draw() {
     if (N > 7) {
         size = 55 * N;
     }
-    if (N < 7) {
+    if (N <= 7) {
         size = 60 * N;
     }
     canvas.width = size;
