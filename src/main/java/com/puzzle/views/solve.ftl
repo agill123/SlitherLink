@@ -11,6 +11,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Zilla+Slab+Highlight:wght@700&display=swap" rel="stylesheet">
 <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
+            #redraw-text{
+
+   color:#007bff; 
+
+   cursor:pointer; 
+   }
  body {
          padding-top: 70px;
         font-family: 'Roboto', sans-serif;
@@ -167,7 +173,7 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
             </div>
             <div class = "row" id="new-options-div">
                <div class = "col-sm-12">
-            <p><a onclick="reDraw()";>Edit current puzzle</a></p>
+            <p id="redraw-text"><a onclick="reDraw()";>Edit current puzzle</a></p>
           </div>
             <div class = "col-sm-12">
              <p><a onclick="show_dim()"; href="">Enter new puzzle</a></p>
@@ -255,7 +261,12 @@ function countNumSquare(x1, y1, x2, y2, canvas, val, ctx, i, j, active) {
     let squareVal = -1;
     this.i = i;
     this.j = j;
-    this.active = active;
+
+    this.toggleActive= function (){
+      active=!active;
+      console.log("ACTIVE IS "+active);
+    };
+
 
     //add an event listener to listen in defined space 
     let listFunc = function(e) {
@@ -301,6 +312,13 @@ function countNumSquare(x1, y1, x2, y2, canvas, val, ctx, i, j, active) {
 //function to draw the board
 
 function reDraw() {
+     for (var i = 0; i < (N - 1); i++) {
+
+        for (var j = 0; j < (N - 1); j++) {
+
+            countsquares[i][j].toggleActive();
+        }
+    }
     document.getElementById('solve_div').style.display = "block";
      document.getElementById('new-options-div').style.display = "none";
 
@@ -403,7 +421,7 @@ function draw() {
         }
         for (var i = 0; i < N; i++) {
             for (var j = 0; j < N; j++) {
-                pointsRot[j].push(points[i][j]);s
+                pointsRot[j].push(points[i][j]);
             }
         }
 
@@ -551,7 +569,7 @@ function displaySolution() {
 
         for (var j = 0; j < (N - 1); j++) {
 
-            countsquares[i][j].active = false;
+            countsquares[i][j].toggleActive();
         }
     }
 

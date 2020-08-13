@@ -25,6 +25,9 @@
     
     
     }
+    #game-instructions{
+         margin-left: -10px;
+    }
 
     #seed-button{
  
@@ -227,7 +230,7 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
 
           <div id="choice-div" class="row">
    <div class = "col-sm-12">
-                  <p>Enter a puzzle dimension from 5 to 10 and choose a puzzle difficulty.</p>
+                  <p id="game-instructions">Enter a puzzle dimension from 5 to 10 and choose a puzzle difficulty.</p>
                    
                </div>
                <div class="col-xs-2s">
