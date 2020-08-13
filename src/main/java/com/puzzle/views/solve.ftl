@@ -106,7 +106,7 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
    </head>
     <body>
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-         <a class="navbar-brand" href="#">SlitherLink Online</a>
+         <a class="navbar-brand" href="/sl">SlitherLink Online</a>
          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
          <span class="navbar-toggler-icon"></span>
          </button>
@@ -116,7 +116,7 @@ box-shadow: 3px 7px 3px 1px rgba(0,0,0,0.3);
                   <a class="nav-link" href="/sl">Home <span class="sr-only"></span></a>
                </li>
                <li class="nav-item">
-                  <a class="nav-link" href="/sl/solve">Solve & Design</a>
+                  <a class="nav-link" href="/sl/solve">Solve</a>
                </li>
                <li class="nav-item">
                   <a class="nav-link" href="/sl/game">Play</a>

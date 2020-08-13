@@ -45,7 +45,7 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-  <a class="navbar-brand" href="#">SlitherLink Online</a>
+  <a class="navbar-brand" href="/sl">SlitherLink Online</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -80,12 +80,12 @@
 
     <div class="row">
       <div class="col-md-4">
-        <h2>Solver</h2>
+        <h2>Solve</h2>
         <p>Solve a SlitherLink Puzzle</p>
         <p><a class="btn btn-secondary" href="/sl/solve" role="button">Go&raquo;</a></p>
       </div>
       <div class="col-md-4">
-        <h2>Play Slitherlink</h2>
+        <h2>Play</h2>
         <p>Generate and Play a Game</p>
         <p><a class="btn btn-secondary" href="/sl/game" role="button">Go &raquo;</a></p>
       </div>

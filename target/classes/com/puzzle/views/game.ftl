@@ -331,7 +331,7 @@ function point(x, y, rad, sa, ea, clock, ctx) {
 
 
 
-function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2) {
+function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2,active,iterator) {
     this.x1 = x1;
     this.y1 = y1;
     this.x2 = x2;
@@ -342,10 +342,23 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2) {
     this.vert = vert;
     this.point1 = point1;
     this.point2 = point2;
+    this.active=active;
+    this.iterator=iterator;
     let activeStates = [true, false, false];
-    let iterator = -1;
-    let active = false;
+  let toggleActive= function a (){
+      if (iterator == 2) {
+                    iterator = -1;
+                }
 
+                if (iterator < 2) {
+                    iterator++;
+                }
+      active=activeStates[iterator];
+      console.log("ACTIVE IS "+active);
+      console.log("iterator is "+iterator);
+    };
+    
+  
     let listFunc = function(e) {
         var rect = canvas.getBoundingClientRect();
         var xCoord = e.x - rect.left;
@@ -353,17 +366,11 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2) {
 
         if (vert == true) {
             if (yCoord > y1 + POINT_RAD && yCoord < y2 - POINT_RAD && Math.abs(xCoord - x1) < 10) {
-                if (iterator == 2) {
-                    iterator = -1;
-                }
-
-                if (iterator < 2) {
-                    iterator++;
-                }
+              
 
 
 
-                active = activeStates[iterator];
+                toggleActive();
                 console.log("active " + active);
                 console.log("iterator " + iterator);;
                 if (active == true) {
@@ -384,7 +391,11 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2) {
                 }
                 if (active == false) {
                     if (iterator == 1) {
-                        activeEdges.pop([point1, point2, x1, y1, x2, y2]);
+                                              for (var i = 0; i < activeEdges.length; i++) {
+  if (activeEdges[i][0] == point1&&activeEdges[i][1] ==point2 &&activeEdges[i][2] == x1&&activeEdges[i][3] == y1 &&activeEdges[i][4] == x2&&activeEdges[i][5] == y2) {
+    activeEdges.splice(i, 1);
+  }
+}
                         console.log("active edges");
                         console.log(activeEdges);
                         ctx.clearRect(x1 - POINT_RAD, y1 + POINT_RAD, 8, 40);
@@ -412,17 +423,13 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2) {
         if (vert == false) {
 
             if (xCoord > x1 + POINT_RAD && xCoord < x2 - POINT_RAD && Math.abs(yCoord - y1) < 10) {
-                if (iterator == 2) {
-                    iterator = -1;
-                }
-                if (iterator < 2) {
-                    iterator++;
-                }
+
+              
 
 
 
 
-                active = activeStates[iterator];
+                  toggleActive();
                 console.log("active " + active);
                 console.log("iterator " + iterator);
                 console.log("");
@@ -441,11 +448,15 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2) {
                 if (active == false) {
 
                     if (iterator == 1) {
-                        activeEdges.pop([point1, point2, x1, y1, x2, y2]);
+                    
+                        for (var i = 0; i < activeEdges.length; i++) {
+  if (activeEdges[i][0] == point1&&activeEdges[i][1] ==point2 &&activeEdges[i][2] == x1&&activeEdges[i][3] == y1 &&activeEdges[i][4] == x2&&activeEdges[i][5] == y2) {
+    activeEdges.splice(i, 1);
+  }
+}
                         console.log("active edges");
                         console.log(activeEdges);
                         ctx.clearRect(x1 + POINT_RAD, y1 - POINT_RAD, 40, 8)
-                        ctx.clearRect(x1 - POINT_RAD, y1 + POINT_RAD, 8, 40);
                         ctx.font = "800 10px Arial";
                         ctx.fillText("X", (((x1 + x2) / 2) - 5), ((y1 + y2) / 2) + 5);
                     }
@@ -720,13 +731,13 @@ function draw() {
             console.log(i);
             var curEdge;
             if (i + 1 < flatPoints.length && ((i + 1) % (N) != 0)) {
-                curEdge = new edge(flatPoints[i].x, flatPoints[i].y, flatPoints[i + 1].x, flatPoints[i + 1].y, false, canvas, ctx, false, i, i + 1);
+                curEdge = new edge(flatPoints[i].x, flatPoints[i].y, flatPoints[i + 1].x, flatPoints[i + 1].y, false, canvas, ctx, false, i, i + 1,false,-1);
                 console.log("+1 curEdge" + curEdge);
                 edges.push(curEdge);
 
             }
             if (i + N < flatPoints.length) {
-                curEdge = new edge(flatPoints[i].x, flatPoints[i].y, flatPoints[i + N].x, flatPoints[i + N].y, false, canvas, ctx, true, i, i + N);
+                curEdge = new edge(flatPoints[i].x, flatPoints[i].y, flatPoints[i + N].x, flatPoints[i + N].y, false, canvas, ctx, true, i, i + N,false,-1);
                 console.log("+N curEdge" + curEdge);
                 edges.push(curEdge);
             }
