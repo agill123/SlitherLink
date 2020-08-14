@@ -219,9 +219,11 @@ public class SLGen{
         int[][] fullCount = new int[0][];
         solver.setSearch(Search.minDomLBSearch(tour)); // fail-first
         solver.limitSolution(3);
+        solver.limitTime("180 s");
         int numSol=0;
         while(solver.solve()){
             fullCount=getFullCount();
+            
 
             numSol++;
         }

@@ -257,9 +257,9 @@ body {
             <input type="text" class="form-control mb-2 mx-2 " id="dim_input">
          </div>
          <div class = "col-sm-12"id="button-div">
-            <a class="btn btn-secondary diff-button" onclick="loadPuzzle('easy')"; role="button">Easy</a>
-            <a class="btn btn-secondary diff-button" onclick="loadPuzzle('medium')"; role="button">Medium</a>
-            <a class="btn btn-secondary diff-button" onclick="loadPuzzle('difficult')"; role="button">Difficult</a>
+            <a class="btn btn-secondary diff-button  disabled" onclick="loadPuzzle('easy')"; role="button" id="easy-button" >Easy</a>
+            <a class="btn btn-secondary diff-button  disabled" onclick="loadPuzzle('medium')"; role="button" id="medium-button"  >Medium</a>
+            <a class="btn btn-secondary diff-button  disabled" onclick="loadPuzzle('difficult')"; role="button" id="difficult-button" >Difficult</a>
          </div>
          <div class = "col-sm-12" id=seed-text>
             <p>You can also enter a seed to retrieve a specific puzzle.</p>
@@ -385,6 +385,7 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2, act
     console.log("iterator is " + iterator);
   };
 
+
 //listens for user input
   let listFunc = function (e) {
     var rect = canvas.getBoundingClientRect();
@@ -494,6 +495,26 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2, act
 
   //attaches listener to window
   window.addEventListener('click', listFunc);
+
+
+}
+
+   document.getElementById('dim_input').oninput = () => {
+     var inputValue = parseInt(document.getElementById("dim_input").value);
+    console.log("VALUE INPUT "+inputValue);
+    if(inputValue >=5 && inputValue <=10){
+       console.log("IS");
+       document.getElementById('easy-button').classList.remove("disabled"); 
+     document.getElementById('medium-button').classList.remove("disabled");
+   document.getElementById('difficult-button').classList.remove("disabled");
+ }
+
+    else{
+      console.log("NOT");
+         document.getElementById('easy-button').classList.add("disabled"); 
+     document.getElementById('medium-button').classList.add("disabled");
+   document.getElementById('difficult-button').classList.add("disabled");;
+    }   
 
 
 }
