@@ -254,9 +254,40 @@ public class SLGen{
     }
 
     private int[][] reducePuzzle(String diff, int[][] oldCount){
-        for(int i = 0;i<n-1;i++){
-            for(int j = 0;j<n-1;j++){
-                if(diff.equals( "easy")){
+    
+    		    if(diff.equals( "easy")){
+    		    	//if more than N 0s try removing until there are 4
+    		    	int zeroCount=0;
+    		    	for(int i = 0;i<n-1;i++) {
+    		    		for(int j =0;j<n-1;j++) {
+    		    			if(oldCount[i][j]==0) {
+    		    				zeroCount++;
+    		    			}
+    		    		}}
+    		    	if(zeroCount > n) {
+    		    	 	for(int i = 0;i<n-1;i++) {
+        		    		for(int j =0;j<n-1;j++) {
+                        //if not the corners
+                        if(!(i==0 && j==0)&&!(i==0 && j==n-2)&&!(i==n-2 && j==0)&&!(i==n-2 && j==n-2) && zeroCount>=4){
+                        if(oldCount[i][j]==0){
+                            int oldNum=oldCount[i][j];
+                            oldCount[i][j]=-1;
+                            zeroCount--;
+                            SLSolve sl =new SLSolve(n,oldCount);
+                            int num=sl.findNumSolutions();
+                            int size =sl.getTour();
+                            if(num != 2 || size < n/2 ){
+                                oldCount[i][j]=oldNum;
+                                zeroCount++;
+                            }
+
+                        }
+                    }}
+        		}
+    		    	}
+    		    	
+    		    	for(int i = 0;i<n-1;i++) {
+    		    		for(int j =0;j<n-1;j++) {
                     //if not the corners
                     if(!(i==0 && j==0)&&!(i==0 && j==n-2)&&!(i==n-2 && j==0)&&!(i==n-2 && j==n-2)){
                     if(oldCount[i][j]==2 || oldCount[i][j]==1 ){
@@ -271,6 +302,11 @@ public class SLGen{
 
                     }
                 }}
+    		}
+    	}
+        for(int i = 0;i<n-1;i++){
+            for(int j = 0;j<n-1;j++){
+            
                 if(diff.equals("medium")){
 
                         int[][] corners=new int[][]{{0,0},{0,n-2},{n-2,0},{n-2,n-2}};
