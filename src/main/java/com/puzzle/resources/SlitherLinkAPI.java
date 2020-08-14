@@ -32,12 +32,14 @@ public class SlitherLinkAPI {
 		String pairsString="";
 		String countString="";
 		SLGen slGen = new SLGen(puzzledim,diff);
+		slGen.rules();
 		int[][] countArr = slGen.countSolve();
 		long genSeed =slGen.getSeed();
 		String genDiff = slGen.getDiff();
 	
 		String displaySeed = puzzledim+"-"+genDiff.charAt(0)+"-"+genSeed;
 		SLSolve sl = new SLSolve(puzzledim,countArr);
+		sl.rules();
 		   if(sl.solve()){
 			   int[][] pairs=new int[sl.getSolution().length][2];
 			   
@@ -88,11 +90,13 @@ public class SlitherLinkAPI {
 			System.out.println("difficulty is"+difficulty);
 		    long inputSeed = Long.parseLong(seed);
 			SLGen slGen = new SLGen(puzzledim,difficulty,inputSeed);
+			slGen.rules();
 			int[][] countArr = slGen.countSolve();
 			long genSeed =slGen.getSeed();
 		
 			String displaySeed = puzzledim+"-"+diff+"-"+genSeed;
 			SLSolve sl = new SLSolve(puzzledim,countArr);
+			sl.rules();
 			   if(sl.solve()){
 				   int[][] pairs=new int[sl.getSolution().length][2];
 				   
@@ -141,6 +145,7 @@ public class SlitherLinkAPI {
 		 
 			
 			   SLSolve sl = new SLSolve(puzzledim,countArr);
+			   sl.rules();
 			   if(sl.solve()){
 				   int[][] pairs=new int[sl.getSolution().length][2];
 				   
@@ -162,6 +167,7 @@ public class SlitherLinkAPI {
 					}
 		            if(stats) {
 		            	SLSolve sl2 = new SLSolve(puzzledim,countArr);
+		            	sl2.rules();
 		 			   System.out.println("Stats ARE wanted");
 		 			   JSONObject data = new JSONObject();
 		 			   data.put("solveTime", sl.solveTime());

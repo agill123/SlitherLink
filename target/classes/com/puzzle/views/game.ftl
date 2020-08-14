@@ -762,7 +762,9 @@ function draw() {
 
 };
 
-
+/**
+Given a seed load a specific puzzle
+**/
 function loadSeed() {
 
   seed = document.getElementById("seed_input").value;
@@ -800,7 +802,10 @@ function loadSeed() {
 
 
 }
-
+/**
+load a puzzle of a given difficulty 
+and size
+**/
 function loadPuzzle(diff) {
   this.diff = diff;
   console.log("The puzzle difficulty is " + diff);
