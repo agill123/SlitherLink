@@ -142,7 +142,18 @@ body {
 #puzzle-div {
   display: none;
 }
-
+#loading-div-1{
+  display:none;
+}
+#loading-div-2{
+   display:none;
+}
+#loading-col-2{
+   margin-top:-5px;
+}
+#input-div{
+margin-left: 0px;
+}
 #puzzle-button-div {}
 
 #button-div {
@@ -254,8 +265,14 @@ body {
             <p id="game-instructions">Enter a puzzle dimension from 5 to 10 and choose a puzzle difficulty.</p>
          </div>
          <div class="col-xs-2s">
+           <div class="row" id="input-div">
             <input type="text" class="form-control mb-2 mx-2 " id="dim_input">
+            <div class="spinner-border" role="status" id="loading-div-1">
+  <span class="sr-only">Loading...</span>
+</div>
+    </div>
          </div>
+
          <div class = "col-sm-12"id="button-div">
             <a class="btn btn-secondary diff-button  disabled" onclick="loadPuzzle('easy')"; role="button" id="easy-button" >Easy</a>
             <a class="btn btn-secondary diff-button  disabled" onclick="loadPuzzle('medium')"; role="button" id="medium-button"  >Medium</a>
@@ -265,18 +282,34 @@ body {
             <p>You can also enter a seed to retrieve a specific puzzle.</p>
          </div>
          <div class="col-xs-2s">
+           <div class="row" id="seed-input-div">
+             <div class="col-sm-9">
             <input type="text" class="form-control mb-2 mx-2 " id="seed_input">
+          </div>     
+           <div class="col-sm-3" id="loading-col-2">
+                    <div class="spinner-border" role="status" id="loading-div-2">
+  <span class="sr-only">Loading...</span>
+</div>
+</div>
          </div>
+       </div>
          <div class = "col-sm-12"id="button-div">
             <a class="btn btn-secondary diff-button" onclick="loadSeed()"; role="button" id="seed-button">Retrieve Puzzle</a>
          </div>
       </div>
       <div class = "col-sm-12" id = "new-game-choice-div">  
          <a onclick="dispChoiceDiv()" href=""; >Get new puzzle</a>
+
       </div>
+     
       <div class = "row" id="puzzle-div">
-         <div class = "col-sm-12"id="button-div">
-            <a class="btn btn-secondary diff-button " id="wrong-moves-button" onclick=""; role="button">Hide Wrong Moves</a>
+      
+              <div class="form-check" id="wrong-form-div">
+    <input type="checkbox" class="form-check-input" id="show-wrong-moves" onchange="wrongMoves();">
+    <label class="form-check-label" for="show-wrong-moves">Show Wrong Moves</label>
+  </div>
+     <div class = "col-sm-12"id="incorrect-div">
+  
          </div>
          <div class ="col-sm-12 " id="board-div">
             <canvas id="gameboard">
@@ -298,8 +331,10 @@ body {
    </div>
 </main>
 
-
-     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script
+        src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+        crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 <script>
@@ -402,11 +437,24 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2, act
         if (active == true) {
           console.log("active edges");
           console.log(activeEdges);
-          activeEdges.push([point1, point2, x1, y1, x2, y2]);
+          activeEdges.push([point1, point2, x1, y1, x2, y2,vert]);
           ctx.beginPath();
           ctx.lineWidth = 5;
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(x2, y2);
+             if(document.getElementById('show-wrong-moves').checked == true){
+            if(checkCorrect(point1,point2)){
+                 ctx.strokeStyle = "black";
+            }
+            if(!checkCorrect(point1,point2)){
+                   ctx.strokeStyle = "red";
+
+            }
+          }
+            if(document.getElementById('show-wrong-moves').checked == false){
+                    ctx.strokeStyle = "black";
+            }
+          
+          ctx.moveTo(x1, y1+POINT_RAD);
+          ctx.lineTo(x2, y2-POINT_RAD);
           ctx.stroke();
         }
         if (active == false) {
@@ -451,11 +499,25 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2, act
         if (active == true) {
           console.log("active edges");
           console.log(activeEdges);
-          activeEdges.push([point1, point2, x1, y1, x2, y2]);
+          activeEdges.push([point1, point2, x1, y1, x2, y2,vert]);
           ctx.beginPath();
           ctx.lineWidth = 5;
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(x2, y2);
+          if(document.getElementById('show-wrong-moves').checked == true){
+            if(checkCorrect(point1,point2)){
+                 ctx.strokeStyle = "black";
+            }
+            if(!checkCorrect(point1,point2)){
+                   ctx.strokeStyle = "red";
+
+            }
+          }
+            if(document.getElementById('show-wrong-moves').checked == false){
+                    ctx.strokeStyle = "black";
+            }
+          
+         
+          ctx.moveTo(x1+POINT_RAD, y1);
+          ctx.lineTo(x2-POINT_RAD, y2);
           ctx.stroke();
         }
 
@@ -503,14 +565,13 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2, act
      var inputValue = parseInt(document.getElementById("dim_input").value);
     console.log("VALUE INPUT "+inputValue);
     if(inputValue >=5 && inputValue <=10){
-       console.log("IS");
+       
        document.getElementById('easy-button').classList.remove("disabled"); 
      document.getElementById('medium-button').classList.remove("disabled");
    document.getElementById('difficult-button').classList.remove("disabled");
  }
 
     else{
-      console.log("NOT");
          document.getElementById('easy-button').classList.add("disabled"); 
      document.getElementById('medium-button').classList.add("disabled");
    document.getElementById('difficult-button').classList.add("disabled");;
@@ -522,6 +583,7 @@ function edge(x1, y1, x2, y2, inSolution, canvas, ctx, vert, point1, point2, act
 function showAnswer() {
   
   document.getElementById('puzzle-button-div').style.display = "none";
+      document.getElementById('wrong-form-div').style.display = "none";
 
   ctxCL.clearRect(0, 0, size, size);
   for (var i = 0; i < edges.length; i++) {
@@ -538,6 +600,7 @@ function showAnswer() {
 
     ctx.beginPath();
     ctx.lineWidth = 5;
+    ctx.strokeStyle="black";
     ctx.moveTo(flatPoints[solutionArr[i][0]].x, flatPoints[solutionArr[i][0]].y);
     ctx.lineTo(flatPoints[solutionArr[i][1]].x, flatPoints[solutionArr[i][1]].y);
     ctx.stroke();
@@ -556,6 +619,79 @@ function dispChoiceDiv() {
   document.getElementById('new-game-choice-div').style.display = "none";
   document.getElementById('puzzle-div').style.display = "none";
 
+}
+
+function wrongMoves(){
+if( document.getElementById('show-wrong-moves').checked == true){
+    //if active edge not insolution, redraw in red push to incorrect array
+    //in edge functions current moves will now be drawn in red
+      for (var i = 0; i < activeEdges.length; i++) {
+    console.log(activeEdges[i]);
+
+    console.log(checkCorrect(activeEdges[i][0], activeEdges[i][1]));
+    if (!checkCorrect(activeEdges[i][0], activeEdges[i][1])) {
+      wrongMove = true;
+      ctx.beginPath();
+      ctx.lineWidth = 5;
+        if (activeEdges[i][6] == true) {
+      ctx.moveTo(activeEdges[i][2], activeEdges[i][3]+POINT_RAD);
+      ctx.lineTo(activeEdges[i][4], activeEdges[i][5]-POINT_RAD);
+    }
+         if (activeEdges[i][6] == false) {
+      ctx.moveTo(activeEdges[i][2]+POINT_RAD, activeEdges[i][3]);
+      ctx.lineTo(activeEdges[i][4]-POINT_RAD, activeEdges[i][5]);
+    }
+      ctx.strokeStyle = "red";
+      ctx.stroke();
+
+    }
+  
+
+ 
+
+
+  }
+
+
+}
+
+if( document.getElementById('show-wrong-moves').checked == false){
+      for (var i = 0; i < activeEdges.length; i++) {
+    console.log(activeEdges[i]);
+
+        if (activeEdges[i][6] == true) {
+      ctx.clearRect(activeEdges[i][2] - POINT_RAD, activeEdges[i][3]+ POINT_RAD, 8, 40);
+         ctx.beginPath();
+      ctx.lineWidth = 5;
+      console.log("drawing " +activeEdges[i][0]+" to "+ activeEdges[i][1]+" ");
+      ctx.moveTo(activeEdges[i][2], activeEdges[i][3]+POINT_RAD);
+      ctx.lineTo(activeEdges[i][4], activeEdges[i][5]-POINT_RAD);
+       ctx.strokeStyle = "black";
+      ctx.stroke();
+
+    }
+         if (activeEdges[i][6] == false) {
+          ctx.clearRect(activeEdges[i][2] + POINT_RAD, activeEdges[i][3] - POINT_RAD, 40, 8);
+
+                 ctx.beginPath();
+      ctx.lineWidth = 5;
+        console.log("drawing " +activeEdges[i][0]+" to "+ activeEdges[i][1]+" ");
+      ctx.moveTo(activeEdges[i][2]+POINT_RAD, activeEdges[i][3]);
+      ctx.lineTo(activeEdges[i][4]-POINT_RAD, activeEdges[i][5]);
+       ctx.strokeStyle = "black";
+      ctx.stroke();
+
+    }
+     
+  
+  
+
+ 
+
+
+  }
+
+}
 }
 
 function showCorrect() {
@@ -580,16 +716,7 @@ function showCorrect() {
     console.log(activeEdges[i]);
 
     console.log(checkCorrect(activeEdges[i][0], activeEdges[i][1]));
-    if (!checkCorrect(activeEdges[i][0], activeEdges[i][1])) {
-      wrongMove = true;
-      ctxCL.beginPath();
-      ctxCL.lineWidth = 5;
-      ctxCL.moveTo(activeEdges[i][2], activeEdges[i][3]);
-      ctxCL.lineTo(activeEdges[i][4], activeEdges[i][5]);
-      ctxCL.strokeStyle = "red";
-      ctxCL.stroke();
-
-    }
+    
     //if correct highlight all in green 
 
     if (checkCorrect(activeEdges[i][0], activeEdges[i][1])) {
@@ -615,26 +742,40 @@ function showCorrect() {
 
     }
     document.getElementById('puzzle-button-div').style.display = "none";
+     document.getElementById('wrong-form-div').style.display = "none";
     for (var i = 0; i < listeners.length; i++) {
       window.removeEventListener('click', listeners[i]);
     }
 
 
   }
+  else{
+      console.log("break");
+  
+   $("incorrect-div").animate({
+        height: '+=50px'
+    }, 300);
+  
+     var incorrectDiv = document.getElementById("incorrect-div");
+incorrectDiv.innerHTML += '<div class="alert alert-light">' +
+    '<button type="button" class="close" data-dismiss="alert">' +
+    '&times;</button>The correct solution has not been input yet</div>'; 
+  
+   $(".alert").delay(500).fadeOut(
+  "normal",
+  function(){
+    $(this).remove();
+  });
+  $("incorrect-div").delay(1000).animate({
+        height: '-=50px'
+    }, 300);
+   
+
+  }
 
 
   console.log("drawing correct layer");
-  if (wrongMove) {
-    document.getElementById('wrong-moves-button').style.display = "inline-block";
-    document.getElementById('wrong-moves-button').onclick = function erase() {
-      console.log("erase");
-      ctxCL.clearRect(0, 0, size, size);
-      document.getElementById('wrong-moves-button').style.display = "none";
 
-
-    }
-
-  }
 
 
 }
@@ -689,6 +830,8 @@ function draw() {
   document.getElementById('gameboard').style.display = "block";
   document.getElementById('puzzle-div').style.display = "block";
   document.getElementById('puzzle-button-div').style.display = "block";
+       document.getElementById('wrong-form-div').style.display = "block";
+
   correctLayer = document.getElementById('solutionLayer');
   ctxCL = correctLayer.getContext('2d');
   if (N > 7) {
@@ -787,7 +930,7 @@ function draw() {
 Given a seed load a specific puzzle
 **/
 function loadSeed() {
-
+   document.getElementById('loading-div-2').style.display = "inline-block";
   seed = document.getElementById("seed_input").value;
   var seedArr = seed.split("-");
   seed = document.getElementById("seed_input").value = " ";
@@ -802,9 +945,11 @@ function loadSeed() {
     alert("CORS not supported");
   }
   xhr.onload = function (e) {
+       document.getElementById('loading-div-2').style.display = "none";
     var responseText = xhr.response;
     console.log(responseText);
     console.log(typeof responseText);
+       if(responseText != "Failure"){
     var obj = JSON.parse(responseText);
     console.log(obj);
     countArr = JSON.parse(obj.count);
@@ -816,6 +961,12 @@ function loadSeed() {
     console.log(seed);
 
     draw();
+  }
+    if(responseText == "Failure"){
+
+    console.log("Request Failed");
+    
+  }
 
 
   }
@@ -828,6 +979,7 @@ load a puzzle of a given difficulty
 and size
 **/
 function loadPuzzle(diff) {
+   document.getElementById('loading-div-1').style.display = "inline-block";
   this.diff = diff;
   console.log("The puzzle difficulty is " + diff);
   N = parseInt(document.getElementById("dim_input").value);
@@ -838,9 +990,11 @@ function loadPuzzle(diff) {
     alert("CORS not supported");
   }
   xhr.onload = function (e) {
+      document.getElementById('loading-div-1').style.display = "none";
     var responseText = xhr.response;
     console.log(responseText);
     console.log(typeof responseText);
+    if(responseText != "Failure"){
     var obj = JSON.parse(responseText);
     console.log(obj);
     countArr = JSON.parse(obj.count);
@@ -852,6 +1006,12 @@ function loadPuzzle(diff) {
     console.log(seed);
 
     draw();
+  }
+   if(responseText == "Failure"){
+
+    console.log("Request Failed");
+    
+  }
 
 
   }

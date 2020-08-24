@@ -157,7 +157,7 @@ canvas {
       <div class ="row">
          <div  id=dim_div>
             <div class = "col-sm-12">
-               <p id="solve-instructions">Enter the dimension of the puzzle you want to solve <a class="btn btn-secondary" onclick="draw()"; role="button">Go&raquo;</a></p>
+               <p id="solve-instructions">Enter the dimension of the puzzle you want to solve <a class="btn btn-secondary disabled" onclick="draw()"; role="button" id="draw-button">Go&raquo;</a></p>
             </div>
             <div class="col-xs-2s">
                <input type="text" class="form-control mb-2 mx-2 " id="dim_input">
@@ -189,7 +189,7 @@ canvas {
                   </div>
                </div>
             </div>
-            <p>Enter your puzzle on the grid then click solve <a class="btn btn-secondary" onclick="solve()"; role="button">Solve&raquo;</a></p>
+            <p>Enter your puzzle on the grid then click solve <a class="btn btn-secondary " onclick="solve()"; role="button" id="solve-button">Solve&raquo;</a></p>
          </div>
       </div>
       <div class = "row" id="new-options-div">
@@ -474,6 +474,22 @@ function draw() {
 
 }
 
+  document.getElementById('dim_input').oninput = () => {
+     var inputValue = parseInt(document.getElementById("dim_input").value);
+    console.log("VALUE INPUT "+inputValue);
+    if(!isNaN(inputValue)){
+       
+       document.getElementById('draw-button').classList.remove("disabled"); 
+
+ }
+
+    else{
+         document.getElementById('draw-button').classList.add("disabled"); 
+  
+    }   
+
+
+}
 //Function to solve
 function solve() {
 
@@ -509,9 +525,10 @@ function solve() {
   // to do when the response arrives 
   xhr.onload = function (e) {
     var responseText = xhr.response;
+    console.log("The response Text is");
     console.log(responseText);
     console.log(typeof responseText);
-
+    if(responseText != "Failure"){
     console.log("is checked status " + isChecked);
     if (isChecked) {
       console.log("IS CHECKED!!!!!!!!!!!!!!!");
@@ -538,6 +555,12 @@ function solve() {
     }
 
     displaySolution();
+  }
+  if(responseText == "Failure"){
+
+    console.log("Request Failed");
+
+  }
 
   };
 

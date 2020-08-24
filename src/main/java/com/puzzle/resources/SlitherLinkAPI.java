@@ -66,7 +66,7 @@ public class SlitherLinkAPI {
 			   data.put("seed",displaySeed);
 			   return data.toJSONString();
 		   }
-		   return "Did not generate";
+		   return "Failure";
 	
 	}
 	
@@ -123,7 +123,7 @@ public class SlitherLinkAPI {
 				   data.put("seed",displaySeed);
 				   return data.toJSONString();
 			   }
-			   return "Did not generate";
+			   return "Failure";
 	  }
 	   @Path("/solve")
 	    @GET
@@ -182,6 +182,6 @@ public class SlitherLinkAPI {
 		 		   }
 	        return pairsString;
 	    }
-           return "Did not solve";
+           return "Failure";
 }
 }

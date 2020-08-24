@@ -64,11 +64,10 @@ public class SLSolve{
 
 
         }
-     for (int i=0;i<n;i++){
-            for (int j=0;j<n;j++)
-                System.out.print(v[i][j] +" ");
-            System.out.println();
-        }
+		/*
+		 * for (int i=0;i<n;i++){ for (int j=0;j<n;j++) System.out.print(v[i][j] +" ");
+		 * System.out.println(); }
+		 */
 
         //subtour constraint
         tourLength = model.intVar("tour length",l,m);
@@ -91,12 +90,12 @@ public class SLSolve{
         }
 
 
-        System.out.println();
-        for (int i=0;i<n;i++){
-            for (int j=0;j<n;j++)
-                System.out.print(v[i][j] +" ");
-            System.out.println();
-        }
+//        System.out.println();
+//        for (int i=0;i<n;i++){
+//            for (int j=0;j<n;j++)
+//                System.out.print(v[i][j] +" ");
+//            System.out.println();
+       // }
         //constrain square edges
         for(int i = 0;i < n-1 ; i++){
             for(int j = 0;j < n-1; j++){
@@ -418,6 +417,7 @@ public class SLSolve{
     public int[] getSolution(){
 
         int[] solution=new int[tour.length];
+        
         for(int i=0;i<n*n;i++){
             solution[i]=tour[i].getValue();
         }
@@ -432,17 +432,27 @@ public class SLSolve{
         System.out.println("The # of solutions for this problem is "+solutions.size());
         for(Solution s:solutions){
             System.out.println(s);
+        
+            
         }
         return solutions.size();
 
     }
-    public boolean mulSolutions(){
-        solver.limitSolution(4);
-        while(solver.solve()){
-            System.out.println(solver.getSolutionCount());
-        }
-        return solver.getSolutionCount()>2;
+    public int[] genSolutions(int limit){
+    	solver.limitSolution(3);
+        solver.setSearch(Search.minDomLBSearch(tour)); // fail-first
+     int solNum=0;
+     int longest=0;
+     while(solver.solve()) {
+    	 solNum++;
+    	  System.out.println("The # of solutions for this problem is "+solNum);
+          System.out.println("The length of the tour is "+getTour());
+           longest = tourLength.getValue();
+     }
+        return new int[]{solNum,longest};
+
     }
+
 
     public void minimumTour() {
         int shortest;
@@ -468,11 +478,11 @@ public class SLSolve{
 
     //test main remove at end
     public static void main(String[] args) {
-        SLSolve sl = new SLSolve(5,new int[][]{{3,-1,-1,-1},{2,-1,-1,-1},{1,-1,-1,-1},{1,-1,-1,-1}});
-     //  sl.rules();
-        sl.findNumSolutions();
+        SLSolve sl = new SLSolve(5,new int[][]{{3,3,3,3},{3,3,3,3},{3,3,3,3},{3,3,3,3}});
+       sl.rules();
+      //  sl.findNumSolutions();
         //sl.mulSolutions();
-  /*      if(sl.solve()){
+        if(sl.solve()){
 
             System.out.println("Solution");
 
@@ -480,7 +490,7 @@ public class SLSolve{
                 System.out.print(sl.getSolution()[i]+" ");
             }
 
-        }*/
+        }
         sl.stats();
        // sl.minimumTour();
 
