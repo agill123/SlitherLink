@@ -280,7 +280,7 @@ private int[][] clueReduction(int[][] oldCount){
 					for (int j = 0; j < n - 1; j++) {
 						if(oldCount[i][j]!=-1) {
 							clueCount++;	
-							System.out.println("clueCount is "+clueCount);
+						//	System.out.println("clueCount is "+clueCount);
 						}
 					}}
 				tryCount++;
@@ -289,7 +289,6 @@ private int[][] clueReduction(int[][] oldCount){
 }
 	private int[][] reducePuzzle(String diff, int[][] oldCount) {
 	
-
 		if (diff.equals("easy")) {
 		
 			if (n <10 ) {
