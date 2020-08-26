@@ -408,7 +408,7 @@ private int[][] clueReduction(int[][] oldCount){
 					locations.add(new Integer[] { i, j });
 				
 					values.add(oldNum);
-					oldCount[i][j] = -1;
+					oldCount[i][j] = -1;}}
 							SLSolve sl = new SLSolve(n, oldCount);
 							sl.rules();
 							 int[] ans=sl.genSolutions(3);
@@ -443,9 +443,9 @@ private int[][] clueReduction(int[][] oldCount){
 
 				}
 
-			}
+			
 
-		}
+		
 		if (diff.equals("difficult")) {
 			int[][] corners = new int[][] { { 0, 0 }, { 0, n - 2 }, { n - 2, 0 }, { n - 2, n - 2 } };
 			// try to remove all corners first
@@ -468,8 +468,8 @@ private int[][] clueReduction(int[][] oldCount){
 	
 			ArrayList<Integer[]> locations = new ArrayList();
 			ArrayList<Integer> values = new ArrayList();
-			for (int i = 0; i < n - 1; i++) {
-				for (int j = 0; j < n - 1; j++) {
+			for (int i = 0; i < (n - 1)/2; i++) {
+				for (int j = 0; j < (n - 1)/2; j++) {
 					
 					int val1 = rand.nextInt(n - 1);
 					int val2 = rand.nextInt(n - 1);
@@ -478,13 +478,17 @@ private int[][] clueReduction(int[][] oldCount){
 					locations.add(new Integer[] { val1, val2 });
 					
 					values.add(temp);
+					
+					
+				}}
 					SLSolve sl = new SLSolve(n, oldCount);
 					 int[] ans=sl.genSolutions(3);
 					  int num=ans[0];
 					  int size =ans[1];
-					if (num != 2 || size < l) {
+					while (num != 2 || size < l) {
 						System.out.println(locations.size());
 						System.out.println("size is "+size);
+						System.out.println("#sol is "+num);
 					   //add back in values in order#
 							System.out.println("l is "+l);
 						  int index1=rand.nextInt(locations.size());
@@ -504,9 +508,9 @@ private int[][] clueReduction(int[][] oldCount){
 					}
 
 				}
-			}
+			
 
-		}
+		
 		//remove additional clues if necessary
 		oldCount=clueReduction(oldCount);
 		return oldCount;
@@ -794,7 +798,7 @@ private int[][] clueReduction(int[][] oldCount){
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
 		String diff = "easy";
-		int n = 10;
+		int n = 20;
 		long seed = 1596895970558L;
 		SLGen sl = new SLGen(n, diff);
 		sl.rules();

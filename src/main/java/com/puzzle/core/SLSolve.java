@@ -439,17 +439,15 @@ public class SLSolve{
 
     }
     public int[] genSolutions(int limit){
-    	solver.limitSolution(3);
+    	solver.limitSolution(limit);
         solver.setSearch(Search.minDomLBSearch(tour)); // fail-first
      int solNum=0;
-     int longest=0;
+     int lengthTour=0;
      while(solver.solve()) {
-    	 solNum++;
-    	  System.out.println("The # of solutions for this problem is "+solNum);
-          System.out.println("The length of the tour is "+getTour());
-           longest = tourLength.getValue();
+    	 solNum++;          
+           lengthTour = tourLength.getValue();
      }
-        return new int[]{solNum,longest};
+        return new int[]{solNum,lengthTour};
 
     }
 
@@ -471,10 +469,7 @@ public class SLSolve{
             model.arithm(tourLength, ">", longest).post();
         }
     }
-    public int getTour(){
-        return tourLength.getValue();
-    }
-
+ 
 
     //test main remove at end
     public static void main(String[] args) {
