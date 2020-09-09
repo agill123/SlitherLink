@@ -798,7 +798,7 @@ private int[][] clueReduction(int[][] oldCount){
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
 		String diff = "easy";
-		int n = 20;
+		int n = 5;
 		long seed = 1596895970558L;
 		SLGen sl = new SLGen(n, diff);
 		sl.rules();

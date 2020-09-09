@@ -4,6 +4,7 @@ package com.puzzle.core;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.strategy.Search;
@@ -31,6 +32,7 @@ public class SLSolve{
     private IntVar[][] v;   //vertex matrix
     private IntVar[] tour;  //sub-tour array
     private IntVar tourLength;
+    private Boolean trace;
 
 
     public SLSolve(int n,int[][]count)  {
@@ -64,10 +66,10 @@ public class SLSolve{
 
 
         }
-		/*
-		 * for (int i=0;i<n;i++){ for (int j=0;j<n;j++) System.out.print(v[i][j] +" ");
-		 * System.out.println(); }
-		 */
+		  if(trace) {
+		  for (int i=0;i<n;i++){ for (int j=0;j<n;j++) System.out.print(v[i][j] +" ");
+		  System.out.println(); }}
+		 
 
         //subtour constraint
         tourLength = model.intVar("tour length",l,m);
@@ -86,16 +88,13 @@ public class SLSolve{
                     model.ifThen(model.arithm(tour[i],"=",j),model.arithm(tour[j],"!=",i));
 
 
+
                 }
         }
 
 
-//        System.out.println();
-//        for (int i=0;i<n;i++){
-//            for (int j=0;j<n;j++)
-//                System.out.print(v[i][j] +" ");
-//            System.out.println();
-       // }
+
+        
         //constrain square edges
         for(int i = 0;i < n-1 ; i++){
             for(int j = 0;j < n-1; j++){
@@ -117,6 +116,8 @@ public class SLSolve{
                 }
             }
         }
+    	
+   
 
 
 
@@ -411,6 +412,7 @@ public class SLSolve{
 
     public boolean solve(){
         solver.setSearch(Search.minDomLBSearch(tour)); // fail-first
+  
         return solver.solve();
     }
 
@@ -428,14 +430,22 @@ public class SLSolve{
     }
     public int findNumSolutions(){
         solver.setSearch(Search.minDomLBSearch(tour)); // fail-first
-        List<Solution> solutions=solver.findAllSolutions();
-        System.out.println("The # of solutions for this problem is "+solutions.size());
-        for(Solution s:solutions){
-            System.out.println(s);
+        Tuples mirrors = new Tuples(false);
+  ;
+   
         
-            
+        int numSolutions=0;
+    
+        while (solver.solve()){
+        
+        	numSolutions++;
+        
+
+      
         }
-        return solutions.size();
+        
+  
+        return numSolutions;
 
     }
     public int[] genSolutions(int limit){
@@ -460,6 +470,10 @@ public class SLSolve{
             model.arithm(tourLength, "<", shortest).post();
         }
     }
+    
+    public long getNodeCount() {
+    	return solver.getNodeCount();
+    }
 
     public void maximumTour(){
         int longest;
@@ -473,19 +487,21 @@ public class SLSolve{
 
     //test main remove at end
     public static void main(String[] args) {
-        SLSolve sl = new SLSolve(5,new int[][]{{3,3,3,3},{3,3,3,3},{3,3,3,3},{3,3,3,3}});
-       sl.rules();
-      //  sl.findNumSolutions();
+        SLSolve sl = new SLSolve(5,new int[][]{{-1,3,-1,3},{-1,0,-1,2},{-1,1,-1,2},{1,2,2,-1}});
+      // sl.rules();
+       // sl.findNumSolutions();
         //sl.mulSolutions();
-        if(sl.solve()){
-
-            System.out.println("Solution");
-
-            for(int i=0;i<sl.getSolution().length;i++){
-                System.out.print(sl.getSolution()[i]+" ");
-            }
-
-        }
+		
+		  if(sl.solve()){
+		  
+		  System.out.println("Solution");
+		  
+		  for(int i=0;i<sl.getSolution().length;i++){
+		  System.out.print(sl.getSolution()[i]+" "); }
+		  
+		  }
+		  System.out.println(sl.getNodeCount());
+		 
         sl.stats();
        // sl.minimumTour();
 
