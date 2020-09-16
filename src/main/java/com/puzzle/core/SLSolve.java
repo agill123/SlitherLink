@@ -34,8 +34,12 @@ public class SLSolve{
     private IntVar tourLength;
     private Boolean trace;
 
-
+    public SLSolve(int n,int[][]count,Boolean trace)  {
+    	this(n, count);
+    	this.trace = trace;
+    }
     public SLSolve(int n,int[][]count)  {
+        this.trace = false;
         model = new Model("SL Solver");
         solver = model.getSolver();
         this.n = n;
@@ -63,8 +67,6 @@ public class SLSolve{
                 }
                 v[i][j] = model.intVar("v["+i+"]"+"["+j+"]",domain);
             }
-
-
         }
 		  if(trace) {
 		  for (int i=0;i<n;i++){ for (int j=0;j<n;j++) System.out.print(v[i][j] +" ");
@@ -430,21 +432,10 @@ public class SLSolve{
     }
     public int findNumSolutions(){
         solver.setSearch(Search.minDomLBSearch(tour)); // fail-first
-        Tuples mirrors = new Tuples(false);
-  ;
-   
-        
-        int numSolutions=0;
-    
-        while (solver.solve()){
-        
-        	numSolutions++;
-        
-
-      
-        }
-        
-  
+        int numSolutions=0;   
+        while (solver.solve()){   
+        	numSolutions++;      
+        }  
         return numSolutions;
 
     }
@@ -487,11 +478,8 @@ public class SLSolve{
 
     //test main remove at end
     public static void main(String[] args) {
-        SLSolve sl = new SLSolve(5,new int[][]{{-1,3,-1,3},{-1,0,-1,2},{-1,1,-1,2},{1,2,2,-1}});
-      // sl.rules();
-       // sl.findNumSolutions();
-        //sl.mulSolutions();
-		
+        SLSolve sl = new SLSolve(5,new int[][]{{-1,3,-1,3},{-1,0,-1,2},{-1,1,-1,2},{1,2,2,-1}},true);
+        sl.rules();
 		  if(sl.solve()){
 		  
 		  System.out.println("Solution");
@@ -500,13 +488,11 @@ public class SLSolve{
 		  System.out.print(sl.getSolution()[i]+" "); }
 		  
 		  }
+		  System.out.println();
 		  System.out.println(sl.getNodeCount());
 		 
         sl.stats();
-       // sl.minimumTour();
-
-
-
+ 
     }
 
 
