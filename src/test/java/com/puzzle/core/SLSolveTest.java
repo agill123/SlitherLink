@@ -28,7 +28,7 @@ public class SLSolveTest {
 	        System.out.println("Before each test method");
 	    
 	       
-	        s=new SLSolve(dim,count);
+	        s=new SLSolve(dim,count,false);
 	    }
 	 
 	    @AfterEach
@@ -45,7 +45,7 @@ public class SLSolveTest {
 	    @DisplayName("Solve Method Test")
 	    void testSolve() {
 	        assertEquals(true,s.solve());
-	        s=new SLSolve(dim,falseCount);
+	        s=new SLSolve(dim,falseCount,false);
 	        assertEquals(false,s.solve());
 	        
 	        

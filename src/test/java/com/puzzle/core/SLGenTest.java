@@ -32,8 +32,8 @@ public class SLGenTest {
 	    void testCountSolve() { 
 	    	for(int i=0;i<100;i++) {
 	    	for(String diff:diffs) {
-	    sl=new SLGen(dim,diff);
-	    	s=new SLSolve(dim,sl.countSolve());
+	    sl=new SLGen(dim,diff,false);
+	    	s=new SLSolve(dim,sl.generate(),false);
 	       assertEquals(2,s.findNumSolutions());
 	        
 	        }}
@@ -43,11 +43,11 @@ public class SLGenTest {
 	    @DisplayName("Rules Test")
 	    void testRules() { 
 	   seed=1596895970558L;
-	   sl=new SLGen(dim,diffs[0],seed);
-	   int[][] sol1=sl.countSolve();
-	   sl=new SLGen(dim,diffs[0],seed);
+	   sl=new SLGen(dim,diffs[0],seed,false);
+	   int[][] sol1=sl.generate();
+	   sl=new SLGen(dim,diffs[0],seed,false);
 	   sl.rules();
-	   int[][] sol2=sl.countSolve();
+	   int[][] sol2=sl.generate();
 	   assertArrayEquals(sol1,sol2);
 	   
 	   

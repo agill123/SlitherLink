@@ -28,15 +28,15 @@ public class SLGen {
 	private IntVar[] tour; // sub-tour array
 	private boolean trace;
 
-	public SLGen(int n, String diff, long seed) {
-		this(n, diff);
+	public SLGen(int n, String diff, long seed, Boolean trace) {
+		this(n, diff, trace);
 		this.seed = seed;
 		rand = new Random(seed);
 
 	}
 
-	public SLGen(int n, String diff) {
-		trace = true;
+	public SLGen(int n, String diff, Boolean trace) {
+		this.trace = trace;
 		seed = System.currentTimeMillis();
 		this.diff = diff;
 
@@ -45,7 +45,7 @@ public class SLGen {
 		solver = model.getSolver();
 		this.n = n;
 		m = n * n;
-		l = (3*m)/4;
+		l = (3 * m) / 4;
 		a = new IntVar[n * n][n * n];
 		v = new IntVar[n][n];
 		count = new int[n - 1][n - 1];
@@ -101,14 +101,30 @@ public class SLGen {
 
 	}
 
+	/**
+	 * Returns the seed of the generated instance
+	 * 
+	 * @return seed
+	 */
 	public long getSeed() {
 		return seed;
 	}
 
+	/**
+	 * Returns the difficulty of the generated instance
+	 * 
+	 * @return difficulty
+	 */
 	public String getDiff() {
 		return diff;
 	}
 
+	/**
+	 * Private method to set the count of generator before using the generator solve
+	 * method
+	 * 
+	 * @param count
+	 */
 	private void setCount(int[][] count) {
 		this.count = count;
 		// constrain square edges
@@ -135,28 +151,26 @@ public class SLGen {
 
 	}
 
-//merge the two functions if approach stays the same
-	public int[][] countSolve() {
+	/**
+	 * method to generate a puzzle
+	 * 
+	 * @return
+	 */
+	public int[][] generate() {
 		int[][] randCount = new int[n - 1][n - 1];
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 0; j < n - 1; j++) {
 				randCount[i][j] = -1;
 			}
 		}
-		return reducePuzzle(diff, baseCountSolve(n, randCount));
-
-	}
-
-	private int[][] baseCountSolve(int n, int[][] randCount) {
-
 		int solNum = 3;
 		SLGen newGen = null;
 		// randomly initialise the count grid
 
-		for (int i = 0; i < n-1; i++) {
+		for (int i = 0; i < n - 1; i++) {
 			int a = rand.nextInt(n - 1);
 			int b = rand.nextInt(n - 1);
-			randCount[a][b] = rand.nextInt(4);	
+			randCount[a][b] = rand.nextInt(4);
 		}
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 0; j < n - 1; j++) {
@@ -165,29 +179,26 @@ public class SLGen {
 			}
 			System.out.println();
 		}
-         int mulFullLoop=0;
+		int mulFullLoop = 0;
 		while (solNum != 2) {
-		mulFullLoop++;
-			newGen = new SLGen(n, diff);
+			mulFullLoop++;
+			newGen = new SLGen(n, diff, false);
 			newGen.setCount(randCount);
 			solNum = newGen.solve();
-		
-            
-			if (solNum == 0 || mulFullLoop>2) {
+
+			if (solNum == 0 || mulFullLoop > 2) {
 				for (int i = 0; i < n - 1; i++) {
 					for (int j = 0; j < n - 1; j++) {
 						randCount[i][j] = -1;
 					}
 				}
-				for (int i = 0; i < n-1; i++) {
+				for (int i = 0; i < n - 1; i++) {
 					int a = rand.nextInt(n - 1);
 					int b = rand.nextInt(n - 1);
 					randCount[a][b] = rand.nextInt(4);
-					
-					
-					
+
 				}
-                mulFullLoop=0;
+				mulFullLoop = 0;
 			}
 			if (trace) {
 				System.out.print("\n---------------------------\n" + "The number of solutions is " + solNum
@@ -204,7 +215,7 @@ public class SLGen {
 			}
 
 		}
-		return newGen.getCount();
+		return reducePuzzle(diff, newGen.getCount());
 
 	}
 
@@ -212,6 +223,11 @@ public class SLGen {
 		return count;
 	}
 
+	/**
+	 * generator solve method
+	 * 
+	 * @return number of solutions
+	 */
 	private int solve() {
 		int[][] fullCount = new int[0][];
 		solver.setSearch(Search.minDomLBSearch(tour)); // fail-first
@@ -220,7 +236,6 @@ public class SLGen {
 		int numSol = 0;
 		while (solver.solve()) {
 			fullCount = getFullCount();
-
 			numSol++;
 		}
 		solver.printShortStatistics();
@@ -228,6 +243,11 @@ public class SLGen {
 		return numSol;
 	}
 
+	/**
+	 * Fill all faces in the grid with edge numbers
+	 * 
+	 * @return count matrix
+	 */
 	private int[][] getFullCount() {
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 0; j < n - 1; j++) {
@@ -248,50 +268,67 @@ public class SLGen {
 		}
 		return count;
 	}
-private int[][] clueReduction(int[][] oldCount){
-	  int clueCount = 0;
-	  int tryCount = 0;
+
+	/**
+	 * Further reduce number of provided clues
+	 * 
+	 * @param oldCount
+	 * @return count matrix
+	 */
+	private int[][] clueReduction(int[][] oldCount) {
+		int clueCount = 0;
+		int tryCount = 0;
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 0; j < n - 1; j++) {
-				if(oldCount[i][j]!=-1) {
-					clueCount++;	
-					System.out.println("clueCount is "+clueCount);
+				if (oldCount[i][j] != -1) {
+					clueCount++;
+					System.out.println("clueCount is " + clueCount);
 				}
-			}}
-		while(clueCount > (((n-1)*(n-1))/2) && tryCount<20 ){
+			}
+		}
+		while (clueCount > (((n - 1) * (n - 1)) / 2) && tryCount < 20) {
 			System.out.println("Reducing clue count");
 			System.out.println(clueCount);
 			int val1 = rand.nextInt(n - 1);
 			int val2 = rand.nextInt(n - 1);
 			int temp = oldCount[val1][val2];
 			oldCount[val1][val2] = -1;
-			SLSolve sl2 = new SLSolve(n, oldCount);
-			 int[] ans2=sl2.genSolutions(3);
-			  int num2=ans2[0];
-			  int size2 =ans2[1];
-			  
+			SLSolve sl2 = new SLSolve(n, oldCount, false);
+			int[] ans2 = sl2.genSolutions(3);
+			int num2 = ans2[0];
+			int size2 = ans2[1];
+
 			if (num2 != 2 || size2 < l) {
-				System.out.println("The number of solutions is "+num2);
-				oldCount[val1][val2]=temp;
-			
+				System.out.println("The number of solutions is " + num2);
+				oldCount[val1][val2] = temp;
+
 			}
 			clueCount = 0;
-				for (int i = 0; i < n - 1; i++) {
-					for (int j = 0; j < n - 1; j++) {
-						if(oldCount[i][j]!=-1) {
-							clueCount++;	
-						//	System.out.println("clueCount is "+clueCount);
-						}
-					}}
-				tryCount++;
+			for (int i = 0; i < n - 1; i++) {
+				for (int j = 0; j < n - 1; j++) {
+					if (oldCount[i][j] != -1) {
+						clueCount++;
+						// System.out.println("clueCount is "+clueCount);
+					}
+				}
+			}
+			tryCount++;
 		}
 		return oldCount;
-}
+	}
+
+	/**
+	 * Reduce clue count according to difficulty
+	 * 
+	 * @param diff
+	 * @param oldCount
+	 * @return count matrix
+	 */
 	private int[][] reducePuzzle(String diff, int[][] oldCount) {
-	
+
 		if (diff.equals("easy")) {
-		
-			if (n <10 ) {
+
+			if (n < 10) {
 				int zeroCount = 0;
 				for (int i = 0; i < n - 1; i++) {
 					for (int j = 0; j < n - 1; j++) {
@@ -308,144 +345,133 @@ private int[][] clueReduction(int[][] oldCount){
 								int oldNum = oldCount[i][j];
 								oldCount[i][j] = -1;
 								zeroCount--;
-								SLSolve sl = new SLSolve(n, oldCount);
-								 int[] ans=sl.genSolutions(3);
-								  int num=ans[0];
-								  int size =ans[1];
+								SLSolve sl = new SLSolve(n, oldCount, false);
+								int[] ans = sl.genSolutions(3);
+								int num = ans[0];
+								int size = ans[1];
 								if (num != 2 || size < l) {
-								
 									oldCount[i][j] = oldNum;
 									zeroCount++;
 								}
-
 							}
 						}
 					}
 				}
-
 			}
-			//take out in bulk and add back in
+			// take out in bulk and add back in
 
-				
-				ArrayList<Integer[]> locations = new ArrayList();
-				ArrayList<Integer> values = new ArrayList();
-				int zeroCount = 0;
-				for (int i = 0; i < n - 1; i++) {
-					for (int j = 0; j < n - 1; j++) {
-						if (oldCount[i][j] == 0) {
-							zeroCount++;
+			ArrayList<Integer[]> locations = new ArrayList();
+			ArrayList<Integer> values = new ArrayList();
+			int zeroCount = 0;
+			for (int i = 0; i < n - 1; i++) {
+				for (int j = 0; j < n - 1; j++) {
+					if (oldCount[i][j] == 0) {
+						zeroCount++;
+					}
+				}
+			}
+			for (int i = 0; i < n - 1; i++) {
+				for (int j = 0; j < n - 1; j++) {
+					if (!(i == 0 && j == 0) && !(i == 0 && j == n - 2) && !(i == n - 2 && j == 0)
+							&& !(i == n - 2 && j == n - 2)) {
+						if (oldCount[i][j] == 2 || oldCount[i][j] == 1 || (oldCount[i][j] == 0 && zeroCount > 16)) {
+							int oldNum = oldCount[i][j];
+							oldCount[i][j] = -1;
+							locations.add(new Integer[] { i, j });
+
+							values.add(oldNum);
+							oldCount[i][j] = -1;
 						}
 					}
 				}
-				for (int i = 0; i < n - 1; i++) {
-					for (int j = 0; j < n - 1; j++) {
-						if(!(i == 0 && j == 0) && !(i == 0 && j == n - 2) && !(i == n -
-					      2 && j == 0) && !(i == n - 2 && j == n - 2)) {
-						if (oldCount[i][j] == 2 || oldCount[i][j] == 1 ||(oldCount[i][j] == 0 && zeroCount>16)) {
-							int oldNum = oldCount[i][j];
-							oldCount[i][j] = -1;
-					locations.add(new Integer[] { i, j });
-				
-					values.add(oldNum);
-					oldCount[i][j] = -1;
-						}
-					}}}
-					
-		
-				  SLSolve sl =new SLSolve(n,oldCount);
-				  sl.rules();
-				  int[] ans=sl.genSolutions(3);
-				  int num=ans[0];
-				  int size =ans[1];
-				
-				  while((num != 2 || size <l)){
-					System.out.println(locations.size());
-					System.out.println("size is "+size);
-				   //add back in values in order#
-						System.out.println("l is "+l);
-					  int index1=rand.nextInt(locations.size());
-				
-					  Integer[] locationvals1=locations.get(index1);
-			
-					oldCount[locationvals1[0]][locationvals1[1]]=values.get(index1);
-			
-					locations.remove(index1);
-					values.remove(index1);
-				
-					sl =new SLSolve(n,oldCount);
-					sl.rules();
-					  ans=sl.genSolutions(3);
-					  num=ans[0];
-					   size =ans[1];
-					
-				
-				  }
-				//remove additional clues if necessary
-				oldCount=clueReduction(oldCount);
-				 
-				  return oldCount;
-				 
-			
+			}
+
+			SLSolve sl = new SLSolve(n, oldCount, false);
+			sl.rules();
+			int[] ans = sl.genSolutions(3);
+			int num = ans[0];
+			int size = ans[1];
+
+			while ((num != 2 || size < l)) {
+				System.out.println(locations.size());
+				System.out.println("size is " + size);
+				// add back in values in order#
+				System.out.println("l is " + l);
+				int index1 = rand.nextInt(locations.size());
+
+				Integer[] locationvals1 = locations.get(index1);
+
+				oldCount[locationvals1[0]][locationvals1[1]] = values.get(index1);
+
+				locations.remove(index1);
+				values.remove(index1);
+
+				sl = new SLSolve(n, oldCount, false);
+				sl.rules();
+				ans = sl.genSolutions(3);
+				num = ans[0];
+				size = ans[1];
+
+			}
+			// remove additional clues if necessary
+			oldCount = clueReduction(oldCount);
+
+			return oldCount;
 
 		}
-	
 
-	
-
-				if (diff.equals("medium")) {
-					ArrayList<Integer[]> locations = new ArrayList();
-					ArrayList<Integer> values = new ArrayList();
-					int[][] corners = new int[][] { { 0, 0 }, { 0, n - 2 }, { n - 2, 0 }, { n - 2, n - 2 } };
-					int randCorner1 = rand.nextInt(4);
-					int randCorner2 = rand.nextInt(4);
-					for (int i = 0; i < n - 1; i++) {
-						for (int j = 0; j < n - 1; j++) {
+		if (diff.equals("medium")) {
+			ArrayList<Integer[]> locations = new ArrayList();
+			ArrayList<Integer> values = new ArrayList();
+			int[][] corners = new int[][] { { 0, 0 }, { 0, n - 2 }, { n - 2, 0 }, { n - 2, n - 2 } };
+			int randCorner1 = rand.nextInt(4);
+			int randCorner2 = rand.nextInt(4);
+			for (int i = 0; i < n - 1; i++) {
+				for (int j = 0; j < n - 1; j++) {
 					if (!(i == corners[randCorner1][0] && j == corners[randCorner1][1])
 							&& !(i == corners[randCorner2][0] && j == corners[randCorner2][1])) {
 						if (oldCount[i][j] == 2 || oldCount[i][j] == 1 || oldCount[i][j] == 0) {
 							int oldNum = oldCount[i][j];
-						
-					locations.add(new Integer[] { i, j });
-				
-					values.add(oldNum);
-					oldCount[i][j] = -1;}}
-							SLSolve sl = new SLSolve(n, oldCount);
-							sl.rules();
-							 int[] ans=sl.genSolutions(3);
-							 
-							  int num=ans[0];
-							  int size =ans[1];
-							  while((num != 2 || size <l)){
-									System.out.println(locations.size());
-									System.out.println("size is "+size);
-								   //add back in values in order#
-										System.out.println("l is "+l);
-									  int index1=rand.nextInt(locations.size());
-								
-									  Integer[] locationvals1=locations.get(index1);
-							
-									oldCount[locationvals1[0]][locationvals1[1]]=values.get(index1);
-							
-									locations.remove(index1);
-									values.remove(index1);
-								
-									sl =new SLSolve(n,oldCount);
-									sl.rules();
-									  ans=sl.genSolutions(3);
-									  num=ans[0];
-									   size =ans[1];
-									
-								
-								  }
 
+							locations.add(new Integer[] { i, j });
+
+							values.add(oldNum);
+							oldCount[i][j] = -1;
 						}
+					}
+					SLSolve sl = new SLSolve(n, oldCount, false);
+					sl.rules();
+					int[] ans = sl.genSolutions(3);
+
+					int num = ans[0];
+					int size = ans[1];
+					while ((num != 2 || size < l)) {
+						System.out.println(locations.size());
+						System.out.println("size is " + size);
+						// add back in values in order#
+						System.out.println("l is " + l);
+						int index1 = rand.nextInt(locations.size());
+
+						Integer[] locationvals1 = locations.get(index1);
+
+						oldCount[locationvals1[0]][locationvals1[1]] = values.get(index1);
+
+						locations.remove(index1);
+						values.remove(index1);
+
+						sl = new SLSolve(n, oldCount, false);
+						sl.rules();
+						ans = sl.genSolutions(3);
+						num = ans[0];
+						size = ans[1];
+
 					}
 
 				}
+			}
 
-			
+		}
 
-		
 		if (diff.equals("difficult")) {
 			int[][] corners = new int[][] { { 0, 0 }, { 0, n - 2 }, { n - 2, 0 }, { n - 2, n - 2 } };
 			// try to remove all corners first
@@ -455,67 +481,68 @@ private int[][] clueReduction(int[][] oldCount){
 				System.out.println(oldNum);
 				oldCount[corners[k][0]][corners[k][1]] = -1;
 				System.out.println(oldCount[corners[k][0]][corners[k][1]]);
-				SLSolve sl = new SLSolve(n, oldCount);
-				 int[] ans=sl.genSolutions(3);
-				  int num=ans[0];
-				  int size =ans[1];
+				SLSolve sl = new SLSolve(n, oldCount, false);
+				int[] ans = sl.genSolutions(3);
+				int num = ans[0];
+				int size = ans[1];
 				if (num != 2 || size < l) {
 					oldCount[corners[k][0]][corners[k][1]] = oldNum;
 
 				}
 
 			}
-	
+
 			ArrayList<Integer[]> locations = new ArrayList();
 			ArrayList<Integer> values = new ArrayList();
-			for (int i = 0; i < (n - 1)/2; i++) {
-				for (int j = 0; j < (n - 1)/2; j++) {
-					
+			for (int i = 0; i < (n - 1) / 2; i++) {
+				for (int j = 0; j < (n - 1) / 2; j++) {
+
 					int val1 = rand.nextInt(n - 1);
 					int val2 = rand.nextInt(n - 1);
 					int temp = oldCount[val1][val2];
 					oldCount[val1][val2] = -1;
 					locations.add(new Integer[] { val1, val2 });
-					
+
 					values.add(temp);
-					
-					
-				}}
-					SLSolve sl = new SLSolve(n, oldCount);
-					 int[] ans=sl.genSolutions(3);
-					  int num=ans[0];
-					  int size =ans[1];
-					while (num != 2 || size < l) {
-						System.out.println(locations.size());
-						System.out.println("size is "+size);
-						System.out.println("#sol is "+num);
-					   //add back in values in order#
-							System.out.println("l is "+l);
-						  int index1=rand.nextInt(locations.size());
-					
-						  Integer[] locationvals1=locations.get(index1);
-				
-						oldCount[locationvals1[0]][locationvals1[1]]=values.get(index1);
-				
-						locations.remove(index1);
-						values.remove(index1);
-					
-						sl =new SLSolve(n,oldCount);
-						sl.rules();
-						  ans=sl.genSolutions(3);
-						  num=ans[0];
-						   size =ans[1];
-					}
 
 				}
-			
+			}
+			SLSolve sl = new SLSolve(n, oldCount, false);
+			int[] ans = sl.genSolutions(3);
+			int num = ans[0];
+			int size = ans[1];
+			while (num != 2 || size < l) {
+				System.out.println(locations.size());
+				System.out.println("size is " + size);
+				System.out.println("#sol is " + num);
+				// add back in values in order#
+				System.out.println("l is " + l);
+				int index1 = rand.nextInt(locations.size());
 
-		
-		//remove additional clues if necessary
-		oldCount=clueReduction(oldCount);
+				Integer[] locationvals1 = locations.get(index1);
+
+				oldCount[locationvals1[0]][locationvals1[1]] = values.get(index1);
+
+				locations.remove(index1);
+				values.remove(index1);
+
+				sl = new SLSolve(n, oldCount, false);
+				sl.rules();
+				ans = sl.genSolutions(3);
+				num = ans[0];
+				size = ans[1];
+			}
+
+		}
+
+		// remove additional clues if necessary
+		oldCount = clueReduction(oldCount);
 		return oldCount;
 	}
 
+	/**
+	 * Apply rules before solving
+	 */
 	public void rules() {
 		Tuples LC = new Tuples();
 		LC.add(1, 1, 1, 0, 0, 0, 0, 0);
@@ -792,33 +819,6 @@ private int[][] clueReduction(int[][] oldCount){
 				model.table(adjC, C).post();
 			}
 		}
-
-	}
-
-	public static void main(String[] args) {
-		long start = System.currentTimeMillis();
-		String diff = "easy";
-		int n = 5;
-		long seed = 1596895970558L;
-		SLGen sl = new SLGen(n, diff);
-		sl.rules();
-		int[][] answer = sl.countSolve();
-		System.out.println("The count matrix going into the solver is");
-		for (int i = 0; i < n - 1; i++) {
-			for (int j = 0; j < n - 1; j++) {
-
-				System.out.print(answer[i][j] + " ");
-			}
-			System.out.println();
-		}
-		SLSolve sl2 = new SLSolve(n, answer);
-		sl2.rules();
-		sl2.findNumSolutions();
-		sl2.stats();	
-		
-		System.out.println("Total time: " + ((System.currentTimeMillis() - start)) / 1000.0);
-		System.out.println("THE SEED IS " + sl.getSeed());
-		System.out.println("THE DIFF IS " + sl.getDiff());
 
 	}
 

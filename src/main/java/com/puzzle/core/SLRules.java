@@ -74,8 +74,6 @@ public class SLRules {
                     model.ifOnlyIf(model.arithm(a[i][j],"=",1),model.arithm(tour[i],"=",j));
                     //efficient search
                     model.ifThen(model.arithm(tour[i],"=",j),model.arithm(tour[j],"!=",i));
-
-
                 }
         }
 
