@@ -187,7 +187,7 @@ public class SlitherLinkAPI {
 				System.out.println("Stats ARE wanted");
 				JSONObject data = new JSONObject();
 				data.put("solveTime", sl.solveTime());
-				data.put("numSolutions", sl2.findNumSolutions());
+				data.put("numSolutions", sl2.findNumSolutions()/2);
 				data.put("pairs", pairsString);
 				return data.toJSONString();
 
